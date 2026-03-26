@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, DollarSign, CreditCard, Banknote, Truck, Store } from 'lucide-react';
+import { MapPin, DollarSign, CreditCard, Banknote, Truck, Store, ArrowLeft } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useStore } from '../../context/StoreContext';
 import Button from '../../components/shared/Button';
@@ -81,7 +81,12 @@ export default function CheckoutPage() {
 
     return (
         <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem 1rem' }}>
-            <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem', textAlign: 'center' }}>Finalizar Pedido</h1>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
+                <button onClick={() => navigate('/')} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'none', border: 'none', color: '#E68A5C', cursor: 'pointer', fontWeight: 'bold' }}>
+                    <ArrowLeft size={24} /> Voltar
+                </button>
+                <h1 style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0 auto', textAlign: 'center', paddingRight: '100px' }}>Finalizar Pedido</h1>
+            </div>
 
             <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'grid', gap: '2rem' }}>
 

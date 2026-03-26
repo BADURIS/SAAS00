@@ -26,8 +26,9 @@ export default function ProductCard({ product, onAdd }) {
         >
             <div className="h-48 overflow-hidden relative">
                 <img
-                    src={product.image}
+                    src={product.image || '/images/fallback.png'}
                     alt={product.name}
+                    onError={(e) => { e.target.onerror = null; e.target.src = '/images/fallback.png'; }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 {product.stock <= 0 && (

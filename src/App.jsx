@@ -11,7 +11,6 @@ import POSPage from './pages/admin/POSPage';
 import CouriersPage from './pages/admin/CouriersPage';
 import SettingsPage from './pages/admin/SettingsPage';
 import LoginPage from './pages/admin/LoginPage';
-import Navbar from './components/shared/Navbar';
 import CartDrawer from './components/public/CartDrawer';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
@@ -28,8 +27,8 @@ function App() {
             <div className="app-container">
               <Routes>
                 {/* Public Routes */}
-                <Route path="/" element={<><Navbar /><HomePage /></>} />
-                <Route path="/checkout" element={<><Navbar /><CheckoutPage /></>} />
+                <Route path="/" element={<HomePage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/order-status/:id" element={<OrderStatusPage />} />
                 <Route path="/login" element={<LoginPage />} />
 

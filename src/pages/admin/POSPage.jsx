@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Minus, CreditCard, Banknote, QrCode, Edit, User } from 'lucide-react';
+import { Plus, Minus, CreditCard, Banknote, QrCode, Edit, User, FileText, CheckCircle2, Loader2 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
 const PLACEHOLDER_IMG = 'https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&q=80&w=400';
@@ -8,8 +8,12 @@ export default function POSPage() {
   const { products, addOrder } = useStore();
   const [cart, setCart] = useState([]);
   const [customer, setCustomer] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('card');
-  const [activeCategory, setActiveCategory] = useState('STEAKS');
+  const [paymentMethod, setPaymentMethod] = useState('cartao');
+  const [activeCategory, setActiveCategory] = useState('Todos');
+  const [emitNfce, setEmitNfce] = useState(false);
+  const [customerCpf, setCustomerCpf] = useState('');
+  const [isProcessingNfce, setIsProcessingNfce] = useState(false);
+  const [nfceSuccess, setNfceSuccess] = useState(false);
 
   const addToCart = (product) => {
     setCart(prev => {
@@ -34,33 +38,51 @@ export default function POSPage() {
   const serviceFee = subtotal * 0.1; // 10%
   const total = subtotal + serviceFee;
 
-  const handleFinalize = () => {
+  const handleFinalize = async () => {
     if (cart.length === 0) return;
+
+    if (emitNfce) {
+      setIsProcessingNfce(true);
+      // Simulação de chamada de API para SEFAZ (ex: Focus NFe, PlugNotas)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      setIsProcessingNfce(false);
+      setNfceSuccess(true);
+      // Aguarda 1.5s para mostrar o sucesso
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setNfceSuccess(false);
+    }
 
     const order = {
       customer: {
-        name: customer || 'Guest',
+        name: customer || 'Balcão / Anônimo',
         phone: 'Presencial',
-        address: 'Mesa/Balcão'
+        address: 'Mesa/Balcão',
+        cpf: emitNfce ? customerCpf : null
       },
       items: cart,
       total: total,
-      status: 'Pendente',
+      status: 'Finalizado',
       payment: {
         method: paymentMethod,
         change: 0
       },
-      type: 'pickup',
-      observation: 'POS Order'
+      type: 'in_person',
+      observation: 'Venda Caixa/PDV',
+      nfce: emitNfce ? { issued: true, code: Math.floor(Math.random() * 10000000) } : null
     };
 
     addOrder(order);
-    alert('Pedido Processado!');
+    alert(emitNfce ? 'NFC-e Emitida e Pedido Processado!' : 'Pedido Processado e Estoque Atualizado!');
     setCart([]);
     setCustomer('');
+    setCustomerCpf('');
+    setEmitNfce(false);
   };
 
-  const categories = ['STEAKS', 'SIDE DISHES', 'BEVERAGES', 'DESSERTS'];
+  const categories = ['Todos', 'Assados', 'Acompanhamentos', 'Marmita', 'Bebidas'];
+  const filteredProducts = activeCategory === 'Todos' 
+    ? products 
+    : products.filter(p => p.category === activeCategory);
 
   return (
     <div className="flex h-screen bg-background text-text-primary overflow-hidden">
@@ -71,7 +93,7 @@ export default function POSPage() {
         {/* Header Options */}
         <div className="flex items-end justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-serif text-white mb-6 tracking-wide">Prime Selections</h1>
+            <h1 className="text-3xl font-serif text-white mb-6 tracking-wide">PDV / Caixa</h1>
             <div className="flex gap-8 border-b border-surface-light w-full">
               {categories.map((cat) => (
                 <button
@@ -92,14 +114,14 @@ export default function POSPage() {
 
           <button className="flex items-center gap-2 bg-surface hover:bg-surface-light text-text-primary px-4 py-2.5 rounded-lg text-sm font-medium transition-colors mb-3">
             <Edit size={16} className="text-text-muted" />
-            Stock Update
+            Atualizar Estoque
           </button>
         </div>
 
         {/* Product Grid */}
         <div className="flex-1 overflow-y-auto pb-8 pr-4 custom-scrollbar">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map(product => (
+            {filteredProducts.map(product => (
               <div
                 key={product.id}
                 className="bg-surface rounded-xl overflow-hidden border border-transparent hover:border-surface-light transition-all flex flex-col"
@@ -109,7 +131,7 @@ export default function POSPage() {
                   <div className="absolute inset-0 bg-cover bg-center rounded-t-xl" style={{ backgroundImage: `url(${product.image || PLACEHOLDER_IMG})`, opacity: product.stock > 0 ? 0.9 : 0.4 }} />
                   {/* Stock Indicator */}
                   <div className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm text-text-primary text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded">
-                    {product.stock} IN STOCK
+                    {product.stock} EM ESTOQUE
                   </div>
                 </div>
 
@@ -118,11 +140,11 @@ export default function POSPage() {
                   <div className="flex justify-between items-start mb-2 gap-2">
                     <h3 className="font-serif text-lg leading-tight text-white">{product.name}</h3>
                     <span className="text-brand font-medium tracking-wide">
-                      ${product.price.toFixed(2)}
+                      R$ {product.price.toFixed(2)}
                     </span>
                   </div>
                   <p className="text-text-muted text-xs line-clamp-2 mb-6">
-                    {product.description || 'Premium selection from our finest regional reserve, expertly aged for flavor.'}
+                    {product.description || 'Seleção premium com nosso tempero especial.'}
                   </p>
                   
                   <button
@@ -134,7 +156,7 @@ export default function POSPage() {
                         : 'bg-surface/50 text-text-muted cursor-not-allowed'}
                     `}
                   >
-                    Add to order
+                    Adicionar
                   </button>
                 </div>
               </div>
@@ -149,17 +171,17 @@ export default function POSPage() {
           
           <div className="flex justify-between items-start mb-8">
             <div>
-              <h2 className="text-xl font-serif text-white mb-2">Current Order</h2>
+              <h2 className="text-xl font-serif text-white mb-2">Pedido Atual</h2>
               <div className="flex items-center gap-2 text-xs text-text-muted font-medium">
                 <User size={12} />
                 <input 
                   type="text" 
                   value={customer}
                   onChange={(e) => setCustomer(e.target.value)}
-                  placeholder="Guest / Table"
+                  placeholder="Cliente / Mesa"
                   className="bg-transparent border-none outline-none placeholder:text-text-muted/50 w-24 focus:text-white"
                 />
-                <span>• Server: Admin</span>
+                <span>• Atend.: Caixa</span>
               </div>
             </div>
             <span className="text-[10px] text-text-muted tracking-widest font-mono">ID: #{Math.floor(Math.random()*10000)}</span>
@@ -168,7 +190,7 @@ export default function POSPage() {
           <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
             {cart.length === 0 ? (
               <div className="h-full flex items-center justify-center">
-                <p className="text-text-muted text-sm font-light italic">No items added to order</p>
+                <p className="text-text-muted text-sm font-light italic">Nenhum item adicionado</p>
               </div>
             ) : (
               <div className="space-y-6">
@@ -179,10 +201,10 @@ export default function POSPage() {
                       <div className="flex justify-between items-start">
                         <div>
                           <h4 className="text-sm font-medium text-white">{item.name}</h4>
-                          <p className="text-[10px] text-text-muted mt-0.5">Standard serving</p>
+                          <p className="text-[10px] text-text-muted mt-0.5">Porção Padrão</p>
                         </div>
                         <span className="text-brand font-medium text-sm">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          R$ {(item.price * item.quantity).toFixed(2)}
                         </span>
                       </div>
                       
@@ -210,38 +232,38 @@ export default function POSPage() {
           <div className="space-y-3 mb-6">
             <div className="flex justify-between text-sm text-text-secondary">
               <span>Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>R$ {subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-sm text-text-secondary">
-              <span>Service (10%)</span>
-              <span>${serviceFee.toFixed(2)}</span>
+              <span>Taxa Serv. (10%)</span>
+              <span>R$ {serviceFee.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-2xl font-serif text-white pt-2 border-t border-surface">
               <span>Total</span>
-              <span className="text-brand">${total.toFixed(2)}</span>
+              <span className="text-brand">R$ {total.toFixed(2)}</span>
             </div>
           </div>
 
-          <p className="text-[10px] text-center uppercase tracking-widest text-text-muted font-bold mb-4">Receive Payment</p>
+          <p className="text-[10px] text-center uppercase tracking-widest text-text-muted font-bold mb-4">Método de Pagamento</p>
           
           <div className="grid grid-cols-3 gap-3 mb-6">
             <button 
-              onClick={() => setPaymentMethod('cash')}
+              onClick={() => setPaymentMethod('dinheiro')}
               className={`flex flex-col items-center justify-center gap-2 py-4 rounded-lg border transition-colors
-                ${paymentMethod === 'cash' ? 'bg-surface-light border-brand/50 text-white' : 'bg-surface border-transparent text-text-muted hover:text-text-secondary'}
+                ${paymentMethod === 'dinheiro' ? 'bg-surface-light border-brand/50 text-white' : 'bg-surface border-transparent text-text-muted hover:text-text-secondary'}
               `}
             >
               <Banknote size={20} />
-              <span className="text-[10px] font-bold tracking-widest uppercase">CASH</span>
+              <span className="text-[10px] font-bold tracking-widest uppercase">DINHEIRO</span>
             </button>
             <button 
-              onClick={() => setPaymentMethod('card')}
+              onClick={() => setPaymentMethod('cartao')}
               className={`flex flex-col items-center justify-center gap-2 py-4 rounded-lg border transition-colors
-                ${paymentMethod === 'card' ? 'bg-surface-light border-brand/50 text-white' : 'bg-surface border-transparent text-text-muted hover:text-text-secondary'}
+                ${paymentMethod === 'cartao' ? 'bg-surface-light border-brand/50 text-white' : 'bg-surface border-transparent text-text-muted hover:text-text-secondary'}
               `}
             >
               <CreditCard size={20} />
-              <span className="text-[10px] font-bold tracking-widest uppercase">CARD</span>
+              <span className="text-[10px] font-bold tracking-widest uppercase">CARTÃO</span>
             </button>
             <button 
               onClick={() => setPaymentMethod('pix')}
@@ -254,16 +276,56 @@ export default function POSPage() {
             </button>
           </div>
 
+          <div className="mb-6 bg-surface p-4 rounded-lg border border-surface-light">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input 
+                type="checkbox" 
+                checked={emitNfce}
+                onChange={(e) => setEmitNfce(e.target.checked)}
+                className="w-4 h-4 accent-brand bg-background border-surface-light rounded"
+              />
+              <span className="text-sm font-medium text-white flex items-center gap-2">
+                <FileText size={16} className={emitNfce ? "text-brand" : "text-text-muted"}/> 
+                Emitir NFC-e (Nota Fiscal)
+              </span>
+            </label>
+            
+            {emitNfce && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="mt-3 pt-3 border-t border-surface-light overflow-hidden"
+              >
+                <input 
+                  type="text" 
+                  value={customerCpf}
+                  onChange={(e) => setCustomerCpf(e.target.value.replace(/\D/g, ''))}
+                  placeholder="CPF na Nota (Apenas números)"
+                  maxLength="11"
+                  className="w-full bg-background border border-surface-light rounded p-2.5 text-sm text-white placeholder:text-text-muted outline-none focus:border-brand transition-colors"
+                />
+              </motion.div>
+            )}
+          </div>
+
           <button
             onClick={handleFinalize}
-            disabled={cart.length === 0}
-            className={`w-full py-4 rounded-lg font-bold tracking-widest uppercase text-sm transition-all
-              ${cart.length > 0 
+            disabled={cart.length === 0 || isProcessingNfce || nfceSuccess}
+            className={`w-full py-4 rounded-lg font-bold tracking-widest uppercase text-sm transition-all flex items-center justify-center gap-3
+              ${isProcessingNfce ? 'bg-surface text-brand cursor-wait' : ''}
+              ${nfceSuccess ? 'bg-green-600/20 text-green-400 border border-green-600/50 cursor-default' : ''}
+              ${(!isProcessingNfce && !nfceSuccess && cart.length > 0)
                 ? 'bg-brand hover:bg-brand-light text-background shadow-[0_0_20px_rgba(230,138,92,0.15)] hover:shadow-[0_0_25px_rgba(230,138,92,0.3)]' 
-                : 'bg-surface text-text-muted cursor-not-allowed'}
+                : (!isProcessingNfce && !nfceSuccess ? 'bg-surface text-text-muted cursor-not-allowed' : '')}
             `}
           >
-            Process Order
+            {isProcessingNfce ? (
+              <><Loader2 size={18} className="animate-spin" /> Processando SEFAZ...</>
+            ) : nfceSuccess ? (
+              <><CheckCircle2 size={18} /> NFC-e Emitida!</>
+            ) : (
+              'Finalizar Pedido'
+            )}
           </button>
         </div>
       </div>

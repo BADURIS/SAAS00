@@ -13,7 +13,12 @@ export default function LoginPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (login(username, password)) {
-      navigate('/admin');
+      const role = localStorage.getItem('cda_auth_role');
+      if (role === 'employee') {
+        navigate('/admin/pos');
+      } else {
+        navigate('/admin');
+      }
     } else {
       setError('Credenciais inválidas');
     }

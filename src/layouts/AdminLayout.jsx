@@ -8,7 +8,7 @@ export default function AdminLayout() {
   const { orders } = useStore();
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, userRole } = useAuth();
   const isActive = (path) => location.pathname === path || (path !== '/admin' && location.pathname.startsWith(path));
 
   const pendingCount = orders.filter(o => !['Entregue', 'Pedido retirado', 'Cancelado', 'Finalizado'].includes(o.status)).length;
@@ -18,15 +18,23 @@ export default function AdminLayout() {
     navigate('/login');
   };
 
-  const navItems = [
-    { icon: <LayoutDashboard size={18} strokeWidth={2} />, label: 'Dashboard', path: '/admin' },
-    { icon: <PlusCircle size={18} strokeWidth={2} />, label: 'POS Terminal', path: '/admin/pos' },
-    { icon: <ClipboardList size={18} strokeWidth={2} />, label: 'Inventory', path: '/admin/inventory' },
-    { icon: <ShoppingCart size={18} strokeWidth={2} />, label: 'Orders', path: '/admin/orders' },
-    { icon: <Package size={18} strokeWidth={2} />, label: 'Products', path: '/admin/products' },
-    { icon: <Bike size={18} strokeWidth={2} />, label: 'Couriers', path: '/admin/couriers' },
-    { icon: <Settings size={18} strokeWidth={2} />, label: 'Settings', path: '/admin/settings' },
-  ];
+  React.useEffect(() => {
+    if (userRole === 'employee' && location.pathname !== '/admin/pos') {
+      navigate('/admin/pos');
+    }
+  }, [userRole, location.pathname, navigate]);
+
+  const navItems = userRole === 'employee' 
+    ? [ { icon: <PlusCircle size={18} strokeWidth={2} />, label: 'PDV/Caixa', path: '/admin/pos' } ]
+    : [
+        { icon: <LayoutDashboard size={18} strokeWidth={2} />, label: 'Dashboard', path: '/admin' },
+        { icon: <PlusCircle size={18} strokeWidth={2} />, label: 'PDV/Caixa', path: '/admin/pos' },
+        { icon: <ClipboardList size={18} strokeWidth={2} />, label: 'Estoque', path: '/admin/inventory' },
+        { icon: <ShoppingCart size={18} strokeWidth={2} />, label: 'Pedidos', path: '/admin/orders' },
+        { icon: <Package size={18} strokeWidth={2} />, label: 'Produtos', path: '/admin/products' },
+        { icon: <Bike size={18} strokeWidth={2} />, label: 'Motoboys', path: '/admin/couriers' },
+        { icon: <Settings size={18} strokeWidth={2} />, label: 'Ajustes', path: '/admin/settings' },
+      ];
 
   return (
     <div className="flex min-h-screen bg-background text-text-primary font-sans">
@@ -44,7 +52,7 @@ export default function AdminLayout() {
             </h1>
           </div>
           <span className="text-text-muted text-[10px] uppercase tracking-[0.2em] font-semibold mt-2 ml-[36px]">
-            Management Portal
+            Painel Gerencial
           </span>
         </div>
 
@@ -74,7 +82,7 @@ export default function AdminLayout() {
                       </span>
                     </div>
 
-                    {item.label === 'Orders' && pendingCount > 0 && (
+                    {item.label === 'Pedidos' && pendingCount > 0 && (
                       <span className={`
                         text-[10px] font-bold px-2 py-0.5 rounded-full
                         ${active ? 'bg-brand text-background' : 'bg-surface-light text-text-primary group-hover:bg-brand/20 group-hover:text-brand'}
@@ -93,7 +101,7 @@ export default function AdminLayout() {
         <div className="p-6 mt-auto">
           <button className="flex items-center gap-4 w-full px-4 py-3 text-sm font-medium tracking-wide text-text-secondary hover:text-text-primary hover:bg-surface/50 rounded-lg transition-all mb-2">
             <HelpCircle size={18} className="text-text-muted" strokeWidth={2} />
-            Support
+            Suporte
           </button>
           
           <button
@@ -101,7 +109,7 @@ export default function AdminLayout() {
             className="flex items-center gap-4 w-full px-4 py-3 text-sm font-medium tracking-wide text-text-secondary hover:text-danger hover:bg-danger/10 rounded-lg transition-all"
           >
             <LogOut size={18} className="text-text-muted" strokeWidth={2} />
-            Logout
+            Sair
           </button>
         </div>
       </aside>

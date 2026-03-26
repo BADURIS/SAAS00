@@ -13,7 +13,7 @@ export const products = [
         description: 'Costela de porco defumada com molho barbecue caseiro.',
         price: 55.00,
         category: 'Assados',
-        image: 'https://images.unsplash.com/photo-1544025162-d76690b609aa?q=80&w=600&auto=format&fit=crop'
+        image: '/images/costela.png' // New cinematic image
     },
     {
         id: 3,
@@ -21,7 +21,7 @@ export const products = [
         description: 'Porção de 500g da nossa tradicional salada de maionese.',
         price: 15.00,
         category: 'Acompanhamentos',
-        image: 'https://images.unsplash.com/photo-1625938145744-e38051524294?q=80&w=600&auto=format&fit=crop'
+        image: '/images/maionese.png' // New cinematic image
     },
     {
         id: 4,
