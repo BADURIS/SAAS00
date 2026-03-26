@@ -1,117 +1,93 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingCart, Package, Settings, LogOut, ClipboardList, PlusCircle, Bike, Flame, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Settings, LogOut, ClipboardList, PlusCircle, Bike, BarChart2 } from 'lucide-react';
+import logo from '../assets/logo.png';
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
 
 export default function AdminLayout() {
-  const { orders } = useStore();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { logout } = useAuth();
-  const isActive = (path) => location.pathname === path || (path !== '/admin' && location.pathname.startsWith(path));
+    const { orders } = useStore();
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
 
-  const pendingCount = orders.filter(o => !['Entregue', 'Pedido retirado', 'Cancelado', 'Finalizado'].includes(o.status)).length;
+    const isActive = (path) => location.pathname === path;
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+    const pendingCount = orders.filter(o => o.status === 'Pendente').length;
 
-  const navItems = [
-    { icon: <LayoutDashboard size={18} strokeWidth={2} />, label: 'Dashboard', path: '/admin' },
-    { icon: <PlusCircle size={18} strokeWidth={2} />, label: 'POS Terminal', path: '/admin/pos' },
-    { icon: <ClipboardList size={18} strokeWidth={2} />, label: 'Inventory', path: '/admin/inventory' },
-    { icon: <ShoppingCart size={18} strokeWidth={2} />, label: 'Orders', path: '/admin/orders' },
-    { icon: <Package size={18} strokeWidth={2} />, label: 'Products', path: '/admin/products' },
-    { icon: <Bike size={18} strokeWidth={2} />, label: 'Couriers', path: '/admin/couriers' },
-    { icon: <Settings size={18} strokeWidth={2} />, label: 'Settings', path: '/admin/settings' },
-  ];
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
 
-  return (
-    <div className="flex min-h-screen bg-background text-text-primary font-sans">
-      {/* Sidebar */}
-      <aside className="w-[260px] bg-[#111111] border-r border-surface-light flex flex-col shrink-0 relative z-20 shadow-xl">
-        
-        {/* Logo Area */}
-        <div className="p-8 flex flex-col gap-1 mb-4">
-          <div className="flex items-center gap-3">
-            <Flame className="text-brand" size={24} strokeWidth={2.5} />
-            <h1 className="text-brand-light font-serif tracking-widest text-lg font-bold uppercase leading-none">
-              CASA DE
-              <br />
-              <span className="text-white">CARNES</span>
-            </h1>
-          </div>
-          <span className="text-text-muted text-[10px] uppercase tracking-[0.2em] font-semibold mt-2 ml-[36px]">
-            Management Portal
-          </span>
-        </div>
+    const allItems = [
+        { icon: <PlusCircle size={20} />, label: 'PDV', path: '/admin/pos', roles: ['manager', 'employee'] },
+        { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/admin', roles: ['manager'] },
+        { icon: <ShoppingCart size={20} />, label: 'Pedidos', path: '/admin/orders', roles: ['manager', 'employee'] },
+        { icon: <Package size={20} />, label: 'Produtos', path: '/admin/products', roles: ['manager'] },
+        { icon: <ClipboardList size={20} />, label: 'Estoque', path: '/admin/inventory', roles: ['manager', 'employee'] },
+        { icon: <BarChart2 size={20} />, label: 'Relatórios', path: '/admin/reports', roles: ['manager'] },
+        { icon: <Bike size={20} />, label: 'Motoboys', path: '/admin/couriers', roles: ['manager'] },
+        { icon: <Settings size={20} />, label: 'Configurações', path: '/admin/settings', roles: ['manager'] },
+    ];
 
-        {/* Navigation */}
-        <nav className="flex-1 py-4">
-          <ul className="flex flex-col gap-2">
-            {navItems.map((item) => {
-              const active = isActive(item.path);
-              return (
-                <li key={item.path} className="px-4">
-                  <Link
-                    to={item.path}
-                    className={`
-                      group flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200
-                      ${active 
-                        ? 'bg-surface border-l-2 border-brand text-brand shadow-sm' 
-                        : 'text-text-secondary hover:bg-surface/50 hover:text-text-primary border-l-2 border-transparent'
-                      }
-                    `}
-                  >
-                    <div className="flex items-center gap-4">
-                      <span className={`transition-colors ${active ? 'text-brand' : 'text-text-muted group-hover:text-text-primary'}`}>
-                        {item.icon}
-                      </span>
-                      <span className="font-medium text-sm tracking-wide">
-                        {item.label}
-                      </span>
+    const navItems = allItems.filter(item => item.roles.includes(user?.role));
+
+    return (
+        <div className="flex min-h-screen bg-zinc-50 font-sans">
+            {/* Sidebar */}
+            <aside className="w-64 bg-zinc-900 text-white flex flex-col border-r border-zinc-800">
+                <div className="p-6 border-b border-zinc-800 flex items-center gap-3">
+                    <img src={logo} alt="Logo" className="w-10 h-10 object-contain brightness-0 invert" />
+                    <div>
+                        <h1 className="text-sm font-black uppercase tracking-tighter leading-none">Butcher POS</h1>
+                        <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">{user?.role}</span>
                     </div>
+                </div>
 
-                    {item.label === 'Orders' && pendingCount > 0 && (
-                      <span className={`
-                        text-[10px] font-bold px-2 py-0.5 rounded-full
-                        ${active ? 'bg-brand text-background' : 'bg-surface-light text-text-primary group-hover:bg-brand/20 group-hover:text-brand'}
-                      `}>
-                        {pendingCount}
-                      </span>
-                    )}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+                <nav className="flex-1 p-4">
+                    <ul className="space-y-1">
+                        {navItems.map((item) => (
+                            <li key={item.path}>
+                                <Link to={item.path} className={`
+                                    flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all relative group
+                                    ${isActive(item.path)
+                                        ? 'bg-red-600 text-white font-bold shadow-[0_0_20px_rgba(220,38,38,0.3)]'
+                                        : 'text-zinc-500 hover:text-white hover:bg-zinc-800'}
+                                `}>
+                                    {item.icon}
+                                    <span className="uppercase tracking-tight">{item.label}</span>
+                                    {item.label === 'Pedidos' && pendingCount > 0 && (
+                                        <span className="ml-auto bg-white text-red-600 text-[10px] font-black px-2 py-0.5 rounded-full ring-2 ring-red-600">
+                                            {pendingCount}
+                                        </span>
+                                    )}
+                                    {isActive(item.path) && (
+                                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-white rounded-l-full" />
+                                    )}
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </nav>
 
-        {/* Bottom Actions */}
-        <div className="p-6 mt-auto">
-          <button className="flex items-center gap-4 w-full px-4 py-3 text-sm font-medium tracking-wide text-text-secondary hover:text-text-primary hover:bg-surface/50 rounded-lg transition-all mb-2">
-            <HelpCircle size={18} className="text-text-muted" strokeWidth={2} />
-            Support
-          </button>
-          
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-4 w-full px-4 py-3 text-sm font-medium tracking-wide text-text-secondary hover:text-danger hover:bg-danger/10 rounded-lg transition-all"
-          >
-            <LogOut size={18} className="text-text-muted" strokeWidth={2} />
-            Logout
-          </button>
+                <div className="p-6 border-t border-zinc-800">
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 w-full px-4 py-3 text-red-500 hover:bg-red-500/10 rounded-lg transition-all text-sm font-bold uppercase tracking-widest"
+                    >
+                        <LogOut size={20} />
+                        <span>Sair</span>
+                    </button>
+                </div>
+            </aside>
+
+            {/* Main Content */}
+            <main className="flex-1 overflow-y-auto p-8 lg:p-12">
+                <div className="max-w-7xl mx-auto">
+                    <Outlet />
+                </div>
+            </main>
         </div>
-      </aside>
-
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-background">
-        <div className="flex-1 overflow-y-auto overflow-x-hidden">
-          <Outlet />
-        </div>
-      </main>
-    </div>
-  );
+    );
 }

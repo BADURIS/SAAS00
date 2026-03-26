@@ -116,7 +116,7 @@ export default function OrderStatusPage() {
                     {/* Total */}
                     <div style={{ borderTop: '2px dashed #e5e7eb', paddingTop: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ color: '#6b7280' }}>
-                            Total a pagar ({order.payment.method === 'money' ? 'Dinheiro' : order.payment.method})
+                            Total a pagar ({order.payment?.method === 'money' ? 'Dinheiro' : (order.payment?.method || 'Processando')})
                         </div>
                         <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827' }}>
                             R$ {order.total.toFixed(2)}

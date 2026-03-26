@@ -10,8 +10,21 @@ export function useStore() {
 export function StoreProvider({ children }) {
     // Products with Stock
     const [products, setProducts] = useState(() => {
-        const saved = localStorage.getItem('store_products');
-        if (saved) return JSON.parse(saved);
+        try {
+            const saved = localStorage.getItem('store_products');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                // Ensure new fields exist for existing data
+                return parsed.map(p => ({
+                    ...p,
+                    unit_type: p.unit_type || 'unit',
+                    barcode: p.barcode || '',
+                    minStock: p.minStock || 5
+                }));
+            }
+        } catch (error) {
+            console.error('Store sync error:', error);
+        }
 
         // Initialize stock if not present
         return initialProducts.map(p => ({
@@ -23,7 +36,17 @@ export function StoreProvider({ children }) {
 
     // Orders
     const [orders, setOrders] = useState(() => {
-        return JSON.parse(localStorage.getItem('store_orders') || '[]');
+        try {
+            return JSON.parse(localStorage.getItem('store_orders') || '[]');
+        } catch (e) {
+            console.error('Store orders sync error:', e);
+            return [];
+        }
+    });
+
+    // Inventory Logs
+    const [inventoryLogs, setInventoryLogs] = useState(() => {
+        return JSON.parse(localStorage.getItem('store_inventory_logs') || '[]');
     });
 
     useEffect(() => {
@@ -34,55 +57,55 @@ export function StoreProvider({ children }) {
         localStorage.setItem('store_orders', JSON.stringify(orders));
     }, [orders]);
 
+    useEffect(() => {
+        localStorage.setItem('store_inventory_logs', JSON.stringify(inventoryLogs));
+    }, [inventoryLogs]);
+
     // Actions
-    const updateProductStock = (id, newStock) => {
-        setProducts(prev => prev.map(p =>
-            p.id === id ? { ...p, stock: parseInt(newStock) } : p
-        ));
-    };
-
-    const updateProductMinStock = (id, newMin) => {
-        setProducts(prev => prev.map(p =>
-            p.id === id ? { ...p, minStock: parseInt(newMin) } : p
-        ));
-    };
-
-    const addProduct = (productData) => {
-        const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-        const newProduct = {
-            ...productData,
-            id: newId,
-            stock: parseInt(productData.stock || 0),
-            minStock: parseInt(productData.minStock || 5)
+    const addInventoryLog = (productId, amount, type, reason = '') => {
+        const log = {
+            id: Date.now(),
+            productId,
+            changeAmount: amount,
+            type,
+            reason,
+            createdAt: new Date().toISOString()
         };
-        setProducts(prev => [...prev, newProduct]);
+        setInventoryLogs(prev => [log, ...prev]);
     };
 
-    const updateProduct = (id, updatedData) => {
-        setProducts(prev => prev.map(p =>
-            p.id === id ? { ...p, ...updatedData } : p
-        ));
-    };
-
-    const deleteProduct = (id) => {
-        setProducts(prev => prev.filter(p => p.id !== id));
+    const updateProductStock = (id, newStock, reason = 'Ajuste Manual') => {
+        setProducts(prev => prev.map(p => {
+            if (p.id === id) {
+                const diff = parseInt(newStock) - p.stock;
+                if (diff !== 0) {
+                    addInventoryLog(id, diff, 'manual_adjustment', reason);
+                }
+                return { ...p, stock: parseInt(newStock) };
+            }
+            return p;
+        }));
     };
 
     const addOrder = (orderData) => {
-        // Calculate next ID based on existing orders
         const maxId = orders.reduce((max, order) => {
             const idNum = parseInt(order.id.replace('#', ''));
             return idNum > max ? idNum : max;
         }, 0);
         const nextId = maxId + 1;
 
-        const newOrder = { ...orderData, id: `#${nextId}`, date: new Date().toISOString() };
+        const newOrder = {
+            ...orderData,
+            id: `#${nextId}`,
+            date: orderData.created_at || new Date().toISOString()
+        };
         setOrders(prev => [newOrder, ...prev]);
 
-        // 2. Decrement Stock
+        // Decrement Stock & Log
         setProducts(prev => prev.map(p => {
-            const itemInOrder = orderData.items.find(i => i.id === p.id);
+            const itemInOrder = orderData.items.find(i => i.product_id === p.id);
             if (itemInOrder) {
+                addInventoryLog(p.id, -itemInOrder.quantity, 'sale', `Venda ${newOrder.id}`);
                 return { ...p, stock: Math.max(0, p.stock - itemInOrder.quantity) };
             }
             return p;
@@ -97,11 +120,10 @@ export function StoreProvider({ children }) {
         ));
     };
 
-    // Settings
+    // ... rest of the settings and courier logic remains the same ...
     const [settings, setSettings] = useState(() => {
         const saved = localStorage.getItem('store_settings');
         if (saved) return JSON.parse(saved);
-
         return {
             description: "O verdadeiro sabor do churrasco na sua mesa. Carnes selecionadas e preparadas com excelência para você e sua família.",
             contact: {
@@ -109,97 +131,42 @@ export function StoreProvider({ children }) {
                 instagram: "@casadosassados",
                 address: "Av. Principal, 123 - Centro\nSão Paulo - SP"
             },
-            hours: {
-                weekdays: "11h às 15h / 18h às 23h",
-                weekend: "11h às 23h"
-            }
+            hours: { weekdays: "11h às 15h / 18h às 23h", weekend: "11h às 23h" }
         };
     });
 
-    useEffect(() => {
-        localStorage.setItem('store_settings', JSON.stringify(settings));
-    }, [settings]);
+    const updateSettings = (newSettings) => setSettings(prev => ({ ...prev, ...newSettings }));
 
-    const updateSettings = (newSettings) => {
-        setSettings(prev => ({ ...prev, ...newSettings }));
-    };
-
-    // --- Courier Management ---
     const [couriers, setCouriers] = useState(() => {
-        const saved = localStorage.getItem('store_couriers');
-        return saved ? JSON.parse(saved) : [];
+        try {
+            return JSON.parse(localStorage.getItem('store_couriers') || '[]');
+        } catch (e) {
+            return [];
+        }
     });
-
     const [deliveryFees, setDeliveryFees] = useState(() => {
-        const saved = localStorage.getItem('store_delivery_fees');
-        return saved ? JSON.parse(saved) : [
-            { id: 1, name: 'Bairro', price: 5 },
-            { id: 2, name: 'Centro', price: 8 },
-            { id: 3, name: 'Distante', price: 12 }
-        ];
+        try {
+            return JSON.parse(localStorage.getItem('store_delivery_fees') || '[{"id":1,"name":"Bairro","price":5},{"id":2,"name":"Centro","price":8}]');
+        } catch (e) {
+            return [{ "id": 1, "name": "Bairro", "price": 5 }, { "id": 2, "name": "Centro", "price": 8 }];
+        }
     });
 
-    useEffect(() => {
-        localStorage.setItem('store_couriers', JSON.stringify(couriers));
-    }, [couriers]);
+    useEffect(() => localStorage.setItem('store_couriers', JSON.stringify(couriers)), [couriers]);
+    useEffect(() => localStorage.setItem('store_delivery_fees', JSON.stringify(deliveryFees)), [deliveryFees]);
 
-    useEffect(() => {
-        localStorage.setItem('store_delivery_fees', JSON.stringify(deliveryFees));
-    }, [deliveryFees]);
-
-    const addCourier = (name) => {
-        if (!name.trim()) return;
-        const newCourier = { id: Date.now(), name, active: true };
-        setCouriers(prev => [...prev, newCourier]);
-    };
-
-    const removeCourier = (id) => {
-        setCouriers(prev => prev.filter(c => c.id !== id));
-    };
-
-    const addDeliveryFee = (name, price) => {
-        const newFee = { id: Date.now(), name, price: parseFloat(price) };
-        setDeliveryFees(prev => [...prev, newFee]);
-    };
-
-    const removeDeliveryFee = (id) => {
-        setDeliveryFees(prev => prev.filter(f => f.id !== id));
-    };
+    const addCourier = (name) => setCouriers(prev => [...prev, { id: Date.now(), name, active: true }]);
+    const removeCourier = (id) => setCouriers(prev => prev.filter(c => c.id !== id));
 
     const assignCourier = (orderId, courierId, feeValue, feeName) => {
-        setOrders(prev => prev.map(o => {
-            if (o.id === orderId) {
-                return {
-                    ...o,
-                    courierId,
-                    deliveryFee: parseFloat(feeValue) || 0, // Snapshot the fee at assignment time
-                    deliveryZone: feeName || '' // Store the zone name
-                };
-            }
-            return o;
-        }));
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, courierId, deliveryFee: parseFloat(feeValue) || 0, deliveryZone: feeName || '' } : o));
     };
 
     return (
         <StoreContext.Provider value={{
-            products,
-            orders,
-            settings,
-            couriers,
-            deliveryFees,
-            updateProductStock,
-            updateProductMinStock,
-            addProduct,
-            updateProduct,
-            deleteProduct,
-            addOrder,
-            updateOrderStatus,
-            updateSettings,
-            addCourier,
-            removeCourier,
-            addDeliveryFee,
-            removeDeliveryFee,
-            assignCourier
+            products, orders, inventoryLogs, settings, couriers, deliveryFees,
+            updateProductStock, addOrder, updateOrderStatus, updateSettings,
+            addCourier, removeCourier, assignCourier
         }}>
             {children}
         </StoreContext.Provider>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit2, Trash2, Plus, X, Save, Image as ImageIcon } from 'lucide-react';
+import { Edit2, Trash2, Plus, X, Save } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import Button from '../../components/shared/Button';
 
@@ -13,10 +13,12 @@ export default function ProductsPage() {
         name: '',
         description: '',
         price: '',
-        category: '',
+        category: 'Assados',
         image: '',
         stock: 0,
-        minStock: 5
+        minStock: 5,
+        unit_type: 'unit',
+        barcode: ''
     });
 
     const categories = ['Assados', 'Acompanhamentos', 'Bebidas', 'Marmita'];
@@ -24,7 +26,11 @@ export default function ProductsPage() {
     const handleOpenModal = (product = null) => {
         if (product) {
             setEditingProduct(product);
-            setFormData({ ...product });
+            setFormData({
+                ...product,
+                unit_type: product.unit_type || 'unit',
+                barcode: product.barcode || ''
+            });
         } else {
             setEditingProduct(null);
             setFormData({
@@ -34,7 +40,9 @@ export default function ProductsPage() {
                 category: 'Assados',
                 image: '',
                 stock: 0,
-                minStock: 5
+                minStock: 5,
+                unit_type: 'unit',
+                barcode: ''
             });
         }
         setIsModalOpen(true);
@@ -50,8 +58,8 @@ export default function ProductsPage() {
         const dataToSave = {
             ...formData,
             price: parseFloat(formData.price),
-            stock: parseInt(formData.stock),
-            minStock: parseInt(formData.minStock)
+            stock: parseFloat(formData.stock),
+            minStock: parseFloat(formData.minStock)
         };
 
         if (editingProduct) {
@@ -68,60 +76,64 @@ export default function ProductsPage() {
         }
     };
 
-    const inputClasses = "w-full p-2.5 bg-background border border-surface-light rounded-lg text-white focus:outline-none focus:border-brand/50 transition-colors";
-    const labelClasses = "block mb-2 text-xs font-bold tracking-widest uppercase text-text-secondary";
-
     return (
-        <div className="text-text-primary">
-            <div className="flex justify-between items-center mb-10">
-                <h1 className="text-3xl font-serif font-bold text-white uppercase tracking-wide">Produtos e Estoque</h1>
-                <Button variant="primary" onClick={() => handleOpenModal()} className="flex items-center gap-2">
+        <div className="pb-10">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827' }}>Produtos e Estoque</h1>
+                <Button variant="primary" onClick={() => handleOpenModal()}>
                     <Plus size={20} />
                     Novo Produto
                 </Button>
             </div>
 
-            <div className="flex flex-col gap-12">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
                 {categories.map(category => {
                     const categoryProducts = products.filter(p => p.category === category);
 
                     return (
                         <div key={category}>
-                            <h2 className="text-2xl font-serif font-bold text-white mb-6 border-b border-surface-light pb-2">
+                            <h2 style={{
+                                fontSize: '1.5rem',
+                                fontWeight: 'bold',
+                                color: '#4b5563',
+                                marginBottom: '1.5rem',
+                                borderBottom: '2px solid #e5e7eb',
+                                paddingBottom: '0.5rem'
+                            }}>
                                 {category}
                             </h2>
 
                             {categoryProducts.length === 0 ? (
-                                <p className="text-text-muted italic bg-surface p-6 rounded-lg border border-surface-light text-center">Nenhum produto nesta categoria.</p>
+                                <p style={{ color: '#9ca3af', fontStyle: 'italic' }}>Nenhum produto nesta categoria.</p>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
                                     {categoryProducts.map((product) => (
-                                        <div key={product.id} className="bg-surface rounded-xl border border-surface-light overflow-hidden transition-all hover:border-brand/30 hover:shadow-[0_0_15px_rgba(230,138,92,0.05)] group flex flex-col">
-                                            <div className="h-48 relative bg-background flex items-center justify-center border-b border-surface-light overflow-hidden">
-                                                {product.image ? (
-                                                    <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                                                ) : (
-                                                    <ImageIcon size={48} className="text-surface-light" />
-                                                )}
+                                        <div key={product.id} style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+                                            <div style={{ height: '150px', position: 'relative' }}>
+                                                <img src={product.image || 'https://via.placeholder.com/300x150?text=Sem+Imagem'} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                <div className="absolute top-2 right-2 bg-zinc-900 border border-zinc-700 text-white px-2 py-0.5 rounded text-[10px] font-mono tracking-tighter uppercase">
+                                                    {product.unit_type === 'kg' ? 'Venda p/ KG' : 'Venda p/ Uni'}
+                                                </div>
                                             </div>
-                                            <div className="p-5 flex-1 flex flex-col">
-                                                <h3 className="font-serif font-bold text-lg text-white mb-2 leading-tight">{product.name}</h3>
-                                                <p className="text-text-secondary text-sm mb-4 line-clamp-2 flex-1">{product.description}</p>
+                                            <div style={{ padding: '1rem' }}>
+                                                <div className="flex justify-between items-start mb-1">
+                                                    <h3 style={{ fontWeight: 'bold', fontSize: '1.125rem' }}>{product.name}</h3>
+                                                    {product.barcode && <span className="text-[9px] text-zinc-400 font-mono">#{product.barcode}</span>}
+                                                </div>
+                                                <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem', minHeight: '40px' }}>{product.description}</p>
 
-                                                <div className="flex justify-between items-end mt-4 pt-4 border-t border-surface-light/50">
-                                                    <span className="font-bold text-brand text-xl">R$ {product.price.toFixed(2)}</span>
-                                                    <div className="flex gap-2">
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <span style={{ fontWeight: 'bold', color: '#dc2626', fontSize: '1.125rem' }}>R$ {product.price.toFixed(2)}</span>
+                                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
                                                         <button
                                                             onClick={() => handleOpenModal(product)}
-                                                            className="p-2 bg-surface-light rounded-lg text-text-muted hover:text-white hover:bg-[#333] transition-colors"
-                                                            title="Editar"
+                                                            style={{ padding: '0.5rem', backgroundColor: '#f3f4f6', borderRadius: '0.375rem', color: '#4b5563', cursor: 'pointer', border: 'none' }}
                                                         >
                                                             <Edit2 size={16} />
                                                         </button>
                                                         <button
                                                             onClick={() => handleDelete(product.id)}
-                                                            className="p-2 bg-danger/10 rounded-lg text-danger border border-transparent hover:border-danger/30 hover:bg-danger/20 transition-colors"
-                                                            title="Excluir"
+                                                            style={{ padding: '0.5rem', backgroundColor: '#fee2e2', borderRadius: '0.375rem', color: '#ef4444', cursor: 'pointer', border: 'none' }}
                                                         >
                                                             <Trash2 size={16} />
                                                         </button>
@@ -139,132 +151,160 @@ export default function ProductsPage() {
 
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-surface p-8 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-surface-light shadow-2xl custom-scrollbar">
-                        <div className="flex justify-between items-center mb-8 pb-4 border-b border-surface-light">
-                            <h2 className="text-2xl font-serif text-white font-bold tracking-wide">
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000
+                }}>
+                    <div style={{
+                        backgroundColor: 'white',
+                        padding: '2rem',
+                        borderRadius: '0.5rem',
+                        width: '100%',
+                        maxWidth: '500px',
+                        maxHeight: '90vh',
+                        overflowY: 'auto'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+                            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
                                 {editingProduct ? 'Editar Produto' : 'Novo Produto'}
                             </h2>
-                            <button onClick={handleCloseModal} className="text-text-muted hover:text-white transition-colors">
+                            <button onClick={handleCloseModal} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                                 <X size={24} />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                            <div>
-                                <label className={labelClasses}>Nome</label>
-                                <input
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                    required
-                                    className={inputClasses}
-                                    placeholder="Ex: Costela Bovina Assada"
-                                />
+                        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Nome</label>
+                                    <input
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                        required
+                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Cód. Barras</label>
+                                    <input
+                                        name="barcode"
+                                        value={formData.barcode}
+                                        onChange={e => setFormData({ ...formData, barcode: e.target.value })}
+                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
+                                    />
+                                </div>
                             </div>
 
                             <div>
-                                <label className={labelClasses}>Descrição</label>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Descrição</label>
                                 <textarea
                                     name="description"
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                    rows={3}
-                                    className={inputClasses}
-                                    placeholder="Detalhes do produto, acompanhamentos, porção..."
+                                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                                 <div>
-                                    <label className={labelClasses}>Preço (R$)</label>
-                                    <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-bold">R$</span>
-                                        <input
-                                            type="number"
-                                            step="0.01"
-                                            name="price"
-                                            value={formData.price}
-                                            onChange={e => setFormData({ ...formData, price: e.target.value })}
-                                            required
-                                            className={`${inputClasses} pl-10`}
-                                            placeholder="0.00"
-                                        />
-                                    </div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Preço (R$)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        name="price"
+                                        value={formData.price}
+                                        onChange={e => setFormData({ ...formData, price: e.target.value })}
+                                        required
+                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
+                                    />
                                 </div>
                                 <div>
-                                    <label className={labelClasses}>Categoria</label>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Tipo</label>
+                                    <select
+                                        name="unit_type"
+                                        value={formData.unit_type}
+                                        onChange={e => setFormData({ ...formData, unit_type: e.target.value })}
+                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
+                                    >
+                                        <option value="unit">Unidade</option>
+                                        <option value="kg">Peso (Kg)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Categoria</label>
                                     <select
                                         name="category"
                                         value={formData.category}
                                         onChange={e => setFormData({ ...formData, category: e.target.value })}
-                                        className={inputClasses}
+                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
                                     >
                                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
                                 </div>
                             </div>
 
-                            <div className="p-4 border border-surface-light rounded-lg bg-background/50">
-                                <label className={labelClasses}>Foto do Produto</label>
-                                <div className="flex gap-4 items-center">
-                                    <div className="w-20 h-20 shrink-0 bg-background border border-surface-light rounded-lg flex items-center justify-center overflow-hidden">
-                                        {formData.image ? (
-                                            <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
-                                        ) : (
-                                            <ImageIcon size={24} className="text-surface-light" />
-                                        )}
-                                    </div>
-                                    <div className="flex-1">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) => {
-                                                const file = e.target.files[0];
-                                                if (file) {
-                                                    const reader = new FileReader();
-                                                    reader.onloadend = () => {
-                                                        setFormData({ ...formData, image: reader.result });
-                                                    };
-                                                    reader.readAsDataURL(file);
-                                                }
-                                            }}
-                                            className="w-full text-sm text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-bold file:bg-surface-light file:text-white hover:file:bg-[#333] cursor-pointer"
-                                        />
-                                        <p className="text-xs text-text-muted mt-2">Dica: Use imagens quadradas e bem iluminadas para destacar o produto.</p>
-                                    </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Foto do Produto</label>
+                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                    {formData.image && (
+                                        <img src={formData.image} alt="Preview" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '0.25rem', border: '1px solid #ddd' }} />
+                                    )}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    setFormData({ ...formData, image: reader.result });
+                                                };
+                                                reader.readAsDataURL(file);
+                                            }
+                                        }}
+                                        style={{ flex: 1, padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
+                                    />
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border border-surface-light rounded-lg bg-background/50">
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                 <div>
-                                    <label className={labelClasses}>Estoque Inicial</label>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Estoque Inicial</label>
                                     <input
                                         type="number"
                                         name="stock"
+                                        step="0.001"
                                         value={formData.stock}
                                         onChange={e => setFormData({ ...formData, stock: e.target.value })}
-                                        className={inputClasses}
+                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
                                     />
                                 </div>
                                 <div>
-                                    <label className={labelClasses}>Estoque Mínimo (Alerta)</label>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Estoque Mínimo</label>
                                     <input
                                         type="number"
                                         name="minStock"
+                                        step="0.001"
                                         value={formData.minStock}
                                         onChange={e => setFormData({ ...formData, minStock: e.target.value })}
-                                        className={inputClasses}
+                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
                                     />
                                 </div>
                             </div>
 
-                            <div className="mt-4 flex justify-end">
-                                <Button variant="primary" type="submit" className="flex items-center gap-2">
-                                    <Save size={20} />
-                                    {editingProduct ? 'Salvar Alterações' : 'Criar Produto'}
-                                </Button>
-                            </div>
+                            <Button variant="primary" style={{ justifyContent: 'center', marginTop: '1rem' }}>
+                                <Save size={20} />
+                                {editingProduct ? 'Salvar Alterações' : 'Criar Produto'}
+                            </Button>
                         </form>
                     </div>
                 </div>

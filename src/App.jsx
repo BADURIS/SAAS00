@@ -11,6 +11,7 @@ import POSPage from './pages/admin/POSPage';
 import CouriersPage from './pages/admin/CouriersPage';
 import SettingsPage from './pages/admin/SettingsPage';
 import LoginPage from './pages/admin/LoginPage';
+import ReportsPage from './pages/admin/ReportsPage';
 import Navbar from './components/shared/Navbar';
 import CartDrawer from './components/public/CartDrawer';
 import { CartProvider } from './context/CartContext';
@@ -39,13 +40,46 @@ function App() {
                     <AdminLayout />
                   </ProtectedRoute>
                 }>
-                  <Route index element={<AdminDashboard />} />
-                  <Route path="orders" element={<OrdersPage />} />
-                  <Route path="products" element={<ProductsPage />} />
-                  <Route path="inventory" element={<InventoryPage />} />
-                  <Route path="pos" element={<POSPage />} />
-                  <Route path="couriers" element={<CouriersPage />} />
-                  <Route path="settings" element={<SettingsPage />} />
+                  <Route index element={
+                    <ProtectedRoute allowedRoles={['manager']}>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="orders" element={
+                    <ProtectedRoute allowedRoles={['manager', 'employee']}>
+                      <OrdersPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="products" element={
+                    <ProtectedRoute allowedRoles={['manager']}>
+                      <ProductsPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="inventory" element={
+                    <ProtectedRoute allowedRoles={['manager', 'employee']}>
+                      <InventoryPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="pos" element={
+                    <ProtectedRoute allowedRoles={['manager', 'employee']}>
+                      <POSPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="reports" element={
+                    <ProtectedRoute allowedRoles={['manager']}>
+                      <ReportsPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="couriers" element={
+                    <ProtectedRoute allowedRoles={['manager']}>
+                      <CouriersPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="settings" element={
+                    <ProtectedRoute allowedRoles={['manager']}>
+                      <SettingsPage />
+                    </ProtectedRoute>
+                  } />
                 </Route>
               </Routes>
               <CartDrawer />

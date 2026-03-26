@@ -13,8 +13,13 @@ export function CartProvider({ children }) {
 
     // Load from localStorage if available
     const [cartItems, setCartItems] = useState(() => {
-        const saved = localStorage.getItem('cart');
-        return saved ? JSON.parse(saved) : [];
+        try {
+            const saved = localStorage.getItem('cart');
+            return saved ? JSON.parse(saved) : [];
+        } catch (error) {
+            console.error('Cart sync error:', error);
+            return [];
+        }
     });
 
     const [isCartOpen, setIsCartOpen] = useState(false);
