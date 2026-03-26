@@ -5,22 +5,20 @@ import Button from '../../components/shared/Button';
 
 const getStatusColor = (status) => {
     switch (status) {
-        case 'Pendente': return 'bg-red-100 text-red-800 border-red-200';
-        case 'Em Preparo': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-        case 'Rota de Entrega': return 'bg-blue-100 text-blue-800 border-blue-200';
-        case 'Entregue': return 'bg-green-100 text-green-800 border-green-200';
-        case 'Pedido pronto para retirada': return 'bg-purple-100 text-purple-800 border-purple-200';
-        case 'Pedido retirado': return 'bg-green-100 text-green-800 border-green-200';
-        case 'Cancelado': return 'bg-gray-100 text-gray-800 border-gray-200';
-        default: return 'bg-gray-100 text-gray-800 border-gray-200';
+        case 'Pendente': return 'bg-danger/10 text-danger border-danger/20';
+        case 'Em Preparo': return 'bg-warning/10 text-warning border-warning/20';
+        case 'Rota de Entrega': return 'bg-info/10 text-info border-info/20';
+        case 'Entregue': return 'bg-success/10 text-success border-success/20';
+        case 'Pedido pronto para retirada': return 'bg-[#B0B0B0]/10 text-[#B0B0B0] border-[#B0B0B0]/20';
+        case 'Pedido retirado': return 'bg-success/10 text-success border-success/20';
+        case 'Cancelado': return 'bg-surface-light text-text-muted border-surface';
+        default: return 'bg-surface-light text-text-muted border-surface';
     }
 };
 
 const getStatusLabel = (status) => {
     return status;
 };
-
-// ... imports
 
 export default function OrdersPage() {
     const { orders, updateOrderStatus, couriers, deliveryFees, assignCourier } = useStore();
@@ -116,22 +114,19 @@ export default function OrdersPage() {
     });
 
     return (
-        <div>
+        <div className="text-text-primary">
             {/* Modal for Courier Assignment */}
             {isAssignModalOpen && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50
-                }}>
-                    <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '0.5rem', width: '90%', maxWidth: '400px' }}>
-                        <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>Atribuir Entrega</h2>
+                <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-surface p-8 rounded-xl w-[90%] max-w-[400px] border border-surface-light shadow-xl">
+                        <h2 className="text-xl font-serif text-white mb-6">Atribuir Entrega</h2>
 
-                        <div style={{ marginBottom: '1rem' }}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Motoboy</label>
+                        <div className="mb-4">
+                            <label className="block mb-2 text-xs font-bold tracking-widest uppercase text-text-secondary">Motoboy</label>
                             <select
                                 value={selectedCourierId}
                                 onChange={(e) => setSelectedCourierId(e.target.value)}
-                                style={{ width: '100%', padding: '0.5rem', borderRadius: '0.25rem', border: '1px solid #d1d5db' }}
+                                className="w-full p-2.5 bg-background border border-surface-light rounded-lg text-text-primary focus:outline-none focus:border-brand/50"
                             >
                                 <option value="">Selecione...</option>
                                 {couriers.filter(c => c.active).map(c => (
@@ -140,12 +135,12 @@ export default function OrdersPage() {
                             </select>
                         </div>
 
-                        <div style={{ marginBottom: '1.5rem' }}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Taxa de Entrega</label>
+                        <div className="mb-8">
+                            <label className="block mb-2 text-xs font-bold tracking-widest uppercase text-text-secondary">Taxa de Entrega</label>
                             <select
                                 value={selectedFeeId}
                                 onChange={(e) => setSelectedFeeId(e.target.value)}
-                                style={{ width: '100%', padding: '0.5rem', borderRadius: '0.25rem', border: '1px solid #d1d5db' }}
+                                className="w-full p-2.5 bg-background border border-surface-light rounded-lg text-text-primary focus:outline-none focus:border-brand/50"
                             >
                                 <option value="">Selecione...</option>
                                 {deliveryFees.map(f => (
@@ -154,76 +149,61 @@ export default function OrdersPage() {
                             </select>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                            <Button onClick={() => setIsAssignModalOpen(false)} style={{ backgroundColor: '#9ca3af', color: 'white' }}>Cancelar</Button>
+                        <div className="flex gap-4 justify-end">
+                            <button onClick={() => setIsAssignModalOpen(false)} className="px-4 py-2 text-sm font-bold tracking-widest uppercase text-text-secondary hover:text-white transition-colors">Cancelar</button>
                             <Button variant="primary" onClick={confirmAssignment}>Confirmar e Enviar</Button>
                         </div>
                     </div>
                 </div>
             )}
 
-            <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem', color: '#111827' }}>Gestão de Pedidos</h1>
+            <h1 className="text-3xl font-serif font-bold text-white mb-8 tracking-wide">Gestão de Pedidos</h1>
 
             {sortedOrders.length === 0 ? (
-                <div style={{ padding: '3rem', textAlign: 'center', color: '#6b7280', backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                    <ShoppingBag size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-                    <p>Nenhum pedido realizado ainda.</p>
+                <div className="p-12 text-center text-text-muted bg-surface rounded-xl border border-surface-light">
+                    <ShoppingBag size={48} className="mx-auto mb-4 opacity-50" />
+                    <p className="font-serif">Nenhum pedido realizado ainda.</p>
                 </div>
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {sortedOrders.map((order) => (
-                        <div key={order.id} style={{
-                            backgroundColor: 'white',
-                            borderRadius: '0.75rem',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-                            overflow: 'hidden',
-                            border: '1px solid #e5e7eb',
-                            display: 'flex',
-                            flexDirection: 'column'
-                        }}>
+                        <div key={order.id} className="bg-surface rounded-xl border border-surface-light overflow-hidden flex flex-col transition-colors hover:border-brand/30">
                             {/* Header */}
-                            <div style={{ padding: '1rem', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f9fafb' }}>
-                                <div style={{ fontWeight: 'bold', fontSize: '1.125rem' }}>{order.id}</div>
-                                <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${getStatusColor(order.status)}`} style={{
-                                    padding: '0.25rem 0.75rem',
-                                    borderRadius: '9999px',
-                                    fontSize: '0.75rem',
-                                    fontWeight: 600,
-                                    borderWidth: '1px',
-                                    ...getStatusStyle(order.status) // Fallback for pure CSS if Tailwind not fully active
-                                }}>
+                            <div className="p-4 border-b border-surface-light flex justify-between items-center bg-[#1A1A1A]">
+                                <div className="font-serif font-bold text-lg text-white">{order.id}</div>
+                                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusColor(order.status)}`}>
                                     {getStatusLabel(order.status)}
                                 </span>
                             </div>
 
-                            <div style={{ padding: '1.5rem', flex: 1 }}>
+                            <div className="p-6 flex-1">
                                 {/* Customer Info */}
-                                <div style={{ marginBottom: '1.5rem' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151', fontWeight: 600 }}>
-                                        <User size={18} />
+                                <div className="mb-6">
+                                    <div className="flex items-center gap-2 mb-2 text-white font-medium">
+                                        <User size={16} className="text-brand" />
                                         {order.customer.name}
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#4b5563', fontSize: '0.9rem' }}>
-                                        <Phone size={16} />
+                                    <div className="flex items-center gap-2 mb-2 text-text-secondary text-sm">
+                                        <Phone size={14} />
                                         {order.customer.phone}
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'start', gap: '0.5rem', color: '#4b5563', fontSize: '0.9rem' }}>
-                                        <MapPin size={16} style={{ marginTop: '0.2rem' }} />
-                                        <span style={{ flex: 1 }}>{order.customer.address}</span>
+                                    <div className="flex items-start gap-2 text-text-secondary text-sm">
+                                        <MapPin size={14} className="mt-1 shrink-0" />
+                                        <span className="flex-1 leading-snug">{order.customer.address}</span>
                                     </div>
                                 </div>
 
                                 {/* Items */}
-                                <div style={{ marginBottom: '1.5rem', backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '0.5rem' }}>
-                                    <h4 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#6b7280', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Itens do Pedido</h4>
-                                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                <div className="mb-6 bg-background p-4 rounded-lg border border-surface-light">
+                                    <h4 className="text-[10px] font-bold text-text-muted mb-3 uppercase tracking-widest">Itens do Pedido</h4>
+                                    <ul className="space-y-3">
                                         {order.items.map((item, idx) => (
-                                            <li key={idx} style={{ display: 'flex', flexDirection: 'column', marginBottom: '0.5rem', fontSize: '0.9rem', borderBottom: '1px dashed #eee', paddingBottom: '0.25rem' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <span><span style={{ fontWeight: 'bold' }}>{item.quantity}x</span> {item.name}</span>
+                                            <li key={idx} className="flex flex-col text-sm border-b border-surface/50 pb-2 last:border-0 last:pb-0">
+                                                <div className="flex justify-between text-text-primary">
+                                                    <span><span className="font-bold text-brand">{item.quantity}x</span> {item.name}</span>
                                                 </div>
                                                 {item.observation && (
-                                                    <span style={{ fontSize: '0.8rem', color: '#b91c1c', fontStyle: 'italic', marginLeft: '1.5rem' }}>
+                                                    <span className="text-xs text-danger italic mt-1 ml-6">
                                                         Obs: {item.observation}
                                                     </span>
                                                 )}
@@ -231,25 +211,27 @@ export default function OrdersPage() {
                                         ))}
                                     </ul>
                                     {order.observation && (
-                                        <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px dashed #d1d5db', fontSize: '0.875rem', color: '#dc2626' }}>
-                                            <span style={{ fontWeight: 'bold' }}>Obs:</span> {order.observation}
+                                        <div className="mt-3 pt-3 border-t border-surface-light text-sm text-brand-light">
+                                            <span className="font-bold uppercase text-[10px] tracking-widest">Obs:</span> {order.observation}
                                         </div>
                                     )}
                                     {order.status === 'Cancelado' && order.cancellationReason && (
-                                        <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid #fee2e2', fontSize: '0.875rem', color: '#ef4444', backgroundColor: '#fef2f2', padding: '0.5rem', borderRadius: '0.375rem' }}>
-                                            <span style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.25rem' }}>PEDIDO CANCELADO</span>
+                                        <div className="mt-3 pt-3 border-t border-danger/30 text-sm text-danger bg-danger/5 p-3 rounded-lg">
+                                            <span className="font-bold uppercase text-[10px] tracking-widest block mb-1">PEDIDO CANCELADO</span>
                                             Motivo: {order.cancellationReason}
                                         </div>
                                     )}
                                 </div>
 
                                 {/* Payment & Total */}
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid #e5e7eb', paddingTop: '1rem' }}>
-                                    <div>
-                                        <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>Pagamento ({order.payment.method === 'money' ? 'Dinheiro' : order.payment.method})</div>
-                                        {order.payment.change > 0 && <div style={{ fontSize: '0.8rem', color: '#9ca3af' }}>Troco p/ R$ {order.payment.change}</div>}
+                                <div className="flex justify-between items-end border-t border-surface-light pt-4">
+                                    <div className="flex flex-col gap-1">
+                                        <div className="text-xs text-text-secondary font-bold uppercase tracking-widest bg-surface-light px-2 py-1 rounded inline-block w-fit">
+                                            {order.payment.method === 'money' ? 'Dinheiro' : order.payment.method}
+                                        </div>
+                                        {order.payment.change > 0 && <div className="text-xs text-text-muted">Troco p/ R$ {order.payment.change}</div>}
                                     </div>
-                                    <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#111827' }}>
+                                    <div className="text-xl font-serif font-bold text-brand">
                                         R$ {order.total.toFixed(2)}
                                     </div>
                                 </div>
@@ -257,26 +239,19 @@ export default function OrdersPage() {
 
                             {/* Actions */}
                             {order.status !== 'Entregue' && order.status !== 'Pedido retirado' && order.status !== 'Cancelado' && order.status !== 'Finalizado' && (
-                                <div style={{ padding: '1rem', backgroundColor: '#f9fafb', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '0.5rem' }}>
-                                    <Button
+                                <div className="p-4 bg-[#1A1A1A] border-t border-surface-light flex gap-3">
+                                    <button
                                         onClick={() => handleNextStatus(order.id, order.status)}
-                                        style={{ flex: 1, justifyContent: 'center', backgroundColor: '#3b82f6', color: 'white' }}
+                                        className="flex-1 bg-brand hover:bg-brand-light text-background font-bold tracking-widest uppercase text-[10px] py-3 rounded transition-colors shadow-[0_0_15px_rgba(230,138,92,0.1)] hover:shadow-[0_0_20px_rgba(230,138,92,0.2)]"
                                     >
                                         Avançar Status
-                                    </Button>
+                                    </button>
                                     <button
                                         onClick={() => handleCancel(order.id)}
-                                        style={{
-                                            padding: '0.5rem',
-                                            borderRadius: '0.375rem',
-                                            border: '1px solid #ef4444',
-                                            color: '#ef4444',
-                                            backgroundColor: 'white',
-                                            cursor: 'pointer'
-                                        }}
+                                        className="p-3 rounded border border-danger/50 text-danger hover:bg-danger hover:text-white transition-colors"
                                         title="Cancelar Pedido"
                                     >
-                                        <XCircle size={20} />
+                                        <XCircle size={18} />
                                     </button>
                                 </div>
                             )}
@@ -286,18 +261,4 @@ export default function OrdersPage() {
             )}
         </div>
     );
-}
-
-// Helper for inline styles since CSS classes might not be fully available/reliable for dynamic colors
-function getStatusStyle(status) {
-    switch (status) {
-        case 'Pendente': return { backgroundColor: '#fee2e2', color: '#991b1b', borderColor: '#fecaca' };
-        case 'Em Preparo': return { backgroundColor: '#fef3c7', color: '#92400e', borderColor: '#fde68a' };
-        case 'Rota de Entrega': return { backgroundColor: '#dbeafe', color: '#1e40af', borderColor: '#bfdbfe' };
-        case 'Entregue': return { backgroundColor: '#d1fae5', color: '#065f46', borderColor: '#a7f3d0' };
-        case 'Pedido pronto para retirada': return { backgroundColor: '#e9d5ff', color: '#6b21a8', borderColor: '#d8b4fe' };
-        case 'Pedido retirado': return { backgroundColor: '#d1fae5', color: '#065f46', borderColor: '#a7f3d0' };
-        case 'Cancelado': return { backgroundColor: '#f3f4f6', color: '#1f2937', borderColor: '#e5e7eb' };
-        default: return { backgroundColor: '#f3f4f6', color: '#1f2937', borderColor: '#e5e7eb' };
-    }
 }

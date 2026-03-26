@@ -53,7 +53,6 @@ export default function CheckoutPage() {
                 change: data.change || 0
             },
             observation: data.observation,
-            observation: data.observation,
             type: deliveryType,
             deliveryFeeId: selectedFee ? selectedFee.id : null,
             deliveryZone: selectedFee ? selectedFee.name : null

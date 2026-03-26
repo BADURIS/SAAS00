@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Edit2, Trash2, Plus, X, Save } from 'lucide-react';
+import { Edit2, Trash2, Plus, X, Save, Image as ImageIcon } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import Button from '../../components/shared/Button';
 
@@ -68,59 +68,60 @@ export default function ProductsPage() {
         }
     };
 
+    const inputClasses = "w-full p-2.5 bg-background border border-surface-light rounded-lg text-white focus:outline-none focus:border-brand/50 transition-colors";
+    const labelClasses = "block mb-2 text-xs font-bold tracking-widest uppercase text-text-secondary";
+
     return (
-        <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827' }}>Produtos e Estoque</h1>
-                <Button variant="primary" onClick={() => handleOpenModal()}>
+        <div className="text-text-primary">
+            <div className="flex justify-between items-center mb-10">
+                <h1 className="text-3xl font-serif font-bold text-white uppercase tracking-wide">Produtos e Estoque</h1>
+                <Button variant="primary" onClick={() => handleOpenModal()} className="flex items-center gap-2">
                     <Plus size={20} />
                     Novo Produto
                 </Button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
+            <div className="flex flex-col gap-12">
                 {categories.map(category => {
                     const categoryProducts = products.filter(p => p.category === category);
-                    // Optional: Show empty categories? Let's show them so user knows where to add
 
                     return (
                         <div key={category}>
-                            <h2 style={{
-                                fontSize: '1.5rem',
-                                fontWeight: 'bold',
-                                color: '#4b5563',
-                                marginBottom: '1.5rem',
-                                borderBottom: '2px solid #e5e7eb',
-                                paddingBottom: '0.5rem'
-                            }}>
+                            <h2 className="text-2xl font-serif font-bold text-white mb-6 border-b border-surface-light pb-2">
                                 {category}
                             </h2>
 
                             {categoryProducts.length === 0 ? (
-                                <p style={{ color: '#9ca3af', fontStyle: 'italic' }}>Nenhum produto nesta categoria.</p>
+                                <p className="text-text-muted italic bg-surface p-6 rounded-lg border border-surface-light text-center">Nenhum produto nesta categoria.</p>
                             ) : (
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                     {categoryProducts.map((product) => (
-                                        <div key={product.id} style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
-                                            <div style={{ height: '150px', position: 'relative' }}>
-                                                <img src={product.image || 'https://via.placeholder.com/300x150?text=Sem+Imagem'} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <div key={product.id} className="bg-surface rounded-xl border border-surface-light overflow-hidden transition-all hover:border-brand/30 hover:shadow-[0_0_15px_rgba(230,138,92,0.05)] group flex flex-col">
+                                            <div className="h-48 relative bg-background flex items-center justify-center border-b border-surface-light overflow-hidden">
+                                                {product.image ? (
+                                                    <img src={product.image} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                                ) : (
+                                                    <ImageIcon size={48} className="text-surface-light" />
+                                                )}
                                             </div>
-                                            <div style={{ padding: '1rem' }}>
-                                                <h3 style={{ fontWeight: 'bold', fontSize: '1.125rem', marginBottom: '0.25rem' }}>{product.name}</h3>
-                                                <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem', minHeight: '40px' }}>{product.description}</p>
+                                            <div className="p-5 flex-1 flex flex-col">
+                                                <h3 className="font-serif font-bold text-lg text-white mb-2 leading-tight">{product.name}</h3>
+                                                <p className="text-text-secondary text-sm mb-4 line-clamp-2 flex-1">{product.description}</p>
 
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <span style={{ fontWeight: 'bold', color: '#dc2626', fontSize: '1.125rem' }}>R$ {product.price.toFixed(2)}</span>
-                                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                <div className="flex justify-between items-end mt-4 pt-4 border-t border-surface-light/50">
+                                                    <span className="font-bold text-brand text-xl">R$ {product.price.toFixed(2)}</span>
+                                                    <div className="flex gap-2">
                                                         <button
                                                             onClick={() => handleOpenModal(product)}
-                                                            style={{ padding: '0.5rem', backgroundColor: '#f3f4f6', borderRadius: '0.375rem', color: '#4b5563', cursor: 'pointer', border: 'none' }}
+                                                            className="p-2 bg-surface-light rounded-lg text-text-muted hover:text-white hover:bg-[#333] transition-colors"
+                                                            title="Editar"
                                                         >
                                                             <Edit2 size={16} />
                                                         </button>
                                                         <button
                                                             onClick={() => handleDelete(product.id)}
-                                                            style={{ padding: '0.5rem', backgroundColor: '#fee2e2', borderRadius: '0.375rem', color: '#ef4444', cursor: 'pointer', border: 'none' }}
+                                                            className="p-2 bg-danger/10 rounded-lg text-danger border border-transparent hover:border-danger/30 hover:bg-danger/20 transition-colors"
+                                                            title="Excluir"
                                                         >
                                                             <Trash2 size={16} />
                                                         </button>
@@ -138,137 +139,132 @@ export default function ProductsPage() {
 
             {/* Modal */}
             {isModalOpen && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 1000
-                }}>
-                    <div style={{
-                        backgroundColor: 'white',
-                        padding: '2rem',
-                        borderRadius: '0.5rem',
-                        width: '100%',
-                        maxWidth: '500px',
-                        maxHeight: '90vh',
-                        overflowY: 'auto'
-                    }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-                            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
+                <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-surface p-8 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-surface-light shadow-2xl custom-scrollbar">
+                        <div className="flex justify-between items-center mb-8 pb-4 border-b border-surface-light">
+                            <h2 className="text-2xl font-serif text-white font-bold tracking-wide">
                                 {editingProduct ? 'Editar Produto' : 'Novo Produto'}
                             </h2>
-                            <button onClick={handleCloseModal} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                            <button onClick={handleCloseModal} className="text-text-muted hover:text-white transition-colors">
                                 <X size={24} />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                             <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Nome</label>
+                                <label className={labelClasses}>Nome</label>
                                 <input
                                     name="name"
                                     value={formData.name}
                                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     required
-                                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
+                                    className={inputClasses}
+                                    placeholder="Ex: Costela Bovina Assada"
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Descrição</label>
+                                <label className={labelClasses}>Descrição</label>
                                 <textarea
                                     name="description"
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
+                                    rows={3}
+                                    className={inputClasses}
+                                    placeholder="Detalhes do produto, acompanhamentos, porção..."
                                 />
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Preço (R$)</label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        name="price"
-                                        value={formData.price}
-                                        onChange={e => setFormData({ ...formData, price: e.target.value })}
-                                        required
-                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
-                                    />
+                                    <label className={labelClasses}>Preço (R$)</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted font-bold">R$</span>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            name="price"
+                                            value={formData.price}
+                                            onChange={e => setFormData({ ...formData, price: e.target.value })}
+                                            required
+                                            className={`${inputClasses} pl-10`}
+                                            placeholder="0.00"
+                                        />
+                                    </div>
                                 </div>
                                 <div>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Categoria</label>
+                                    <label className={labelClasses}>Categoria</label>
                                     <select
                                         name="category"
                                         value={formData.category}
                                         onChange={e => setFormData({ ...formData, category: e.target.value })}
-                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
+                                        className={inputClasses}
                                     >
                                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
                                 </div>
                             </div>
 
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Foto do Produto</label>
-                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                    {formData.image && (
-                                        <img src={formData.image} alt="Preview" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '0.25rem', border: '1px solid #ddd' }} />
-                                    )}
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => {
-                                            const file = e.target.files[0];
-                                            if (file) {
-                                                const reader = new FileReader();
-                                                reader.onloadend = () => {
-                                                    setFormData({ ...formData, image: reader.result });
-                                                };
-                                                reader.readAsDataURL(file);
-                                            }
-                                        }}
-                                        style={{ flex: 1, padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
-                                    />
+                            <div className="p-4 border border-surface-light rounded-lg bg-background/50">
+                                <label className={labelClasses}>Foto do Produto</label>
+                                <div className="flex gap-4 items-center">
+                                    <div className="w-20 h-20 shrink-0 bg-background border border-surface-light rounded-lg flex items-center justify-center overflow-hidden">
+                                        {formData.image ? (
+                                            <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <ImageIcon size={24} className="text-surface-light" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onloadend = () => {
+                                                        setFormData({ ...formData, image: reader.result });
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }}
+                                            className="w-full text-sm text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-bold file:bg-surface-light file:text-white hover:file:bg-[#333] cursor-pointer"
+                                        />
+                                        <p className="text-xs text-text-muted mt-2">Dica: Use imagens quadradas e bem iluminadas para destacar o produto.</p>
+                                    </div>
                                 </div>
-                                <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>Selecione uma foto do seu computador/celular.</p>
                             </div>
 
-                            {/* Initial Stock Fields - Only visible on creation usually, or editable here? Let's keep editable for flexibility even though Inventory Page exists */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border border-surface-light rounded-lg bg-background/50">
                                 <div>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Estoque Inicial</label>
+                                    <label className={labelClasses}>Estoque Inicial</label>
                                     <input
                                         type="number"
                                         name="stock"
                                         value={formData.stock}
                                         onChange={e => setFormData({ ...formData, stock: e.target.value })}
-                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
+                                        className={inputClasses}
                                     />
                                 </div>
                                 <div>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Estoque Mínimo</label>
+                                    <label className={labelClasses}>Estoque Mínimo (Alerta)</label>
                                     <input
                                         type="number"
                                         name="minStock"
                                         value={formData.minStock}
                                         onChange={e => setFormData({ ...formData, minStock: e.target.value })}
-                                        style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '0.25rem' }}
+                                        className={inputClasses}
                                     />
                                 </div>
                             </div>
 
-                            <Button variant="primary" style={{ justifyContent: 'center', marginTop: '1rem' }}>
-                                <Save size={20} />
-                                {editingProduct ? 'Salvar Alterações' : 'Criar Produto'}
-                            </Button>
+                            <div className="mt-4 flex justify-end">
+                                <Button variant="primary" type="submit" className="flex items-center gap-2">
+                                    <Save size={20} />
+                                    {editingProduct ? 'Salvar Alterações' : 'Criar Produto'}
+                                </Button>
+                            </div>
                         </form>
                     </div>
                 </div>

@@ -6,85 +6,52 @@ export default function InventoryPage() {
     const { products, updateProductStock, updateProductMinStock } = useStore();
 
     return (
-        <div>
-            <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem', color: '#111827' }}>Controle de Estoque</h1>
+        <div className="text-text-primary">
+            <h1 className="text-3xl font-serif font-bold mb-8 text-white tracking-wide">Controle de Estoque</h1>
 
-            <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                    <thead style={{ backgroundColor: '#f9fafb' }}>
+            <div className="bg-surface rounded-xl border border-surface-light overflow-hidden">
+                <table className="w-full border-collapse text-left">
+                    <thead className="bg-[#1A1A1A] border-b border-surface-light">
                         <tr>
-                            <th style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb', fontSize: '0.875rem', color: '#6b7280' }}>Produto</th>
-                            <th style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb', fontSize: '0.875rem', color: '#6b7280' }}>Estoque Atual</th>
-                            <th style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb', fontSize: '0.875rem', color: '#6b7280' }}>Estoque Mínimo</th>
-                            <th style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb', fontSize: '0.875rem', color: '#6b7280', textAlign: 'center' }}>Status</th>
+                            <th className="p-4 text-xs font-bold uppercase tracking-widest text-text-muted">Produto</th>
+                            <th className="p-4 text-xs font-bold uppercase tracking-widest text-text-muted">Estoque Atual</th>
+                            <th className="p-4 text-xs font-bold uppercase tracking-widest text-text-muted">Estoque Mínimo</th>
+                            <th className="p-4 text-xs font-bold uppercase tracking-widest text-text-muted text-center">Status</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-surface-light/50">
                         {products.map((product) => {
                             const isLowStock = product.stock <= product.minStock;
                             return (
-                                <tr key={product.id} style={{ borderBottom: '1px solid #f3f4f6', backgroundColor: isLowStock ? '#fef2f2' : 'white' }}>
-                                    <td style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                        <img src={product.image} alt={product.name} style={{ width: '48px', height: '48px', borderRadius: '0.5rem', objectFit: 'cover' }} />
-                                        <span style={{ fontWeight: 500 }}>{product.name}</span>
+                                <tr key={product.id} className={isLowStock ? 'bg-danger/5' : 'bg-surface hover:bg-surface-light/50 transition-colors'}>
+                                    <td className="p-4 flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-lg bg-background bg-cover bg-center border border-surface-light" style={{ backgroundImage: `url(${product.image})` }} />
+                                        <span className="font-serif text-white">{product.name}</span>
                                     </td>
-                                    <td style={{ padding: '1rem' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                            <input
-                                                type="number"
-                                                value={product.stock}
-                                                onChange={(e) => updateProductStock(product.id, e.target.value)}
-                                                style={{
-                                                    width: '80px',
-                                                    padding: '0.5rem',
-                                                    border: '1px solid #d1d5db',
-                                                    borderRadius: '0.375rem',
-                                                    fontWeight: 'bold'
-                                                }}
-                                            />
-                                        </div>
+                                    <td className="p-4">
+                                        <input
+                                            type="number"
+                                            value={product.stock}
+                                            onChange={(e) => updateProductStock(product.id, e.target.value)}
+                                            className="w-20 p-2 bg-background border border-surface-light rounded-md font-bold text-white focus:outline-none focus:border-brand/50 transition-colors"
+                                        />
                                     </td>
-                                    <td style={{ padding: '1rem' }}>
+                                    <td className="p-4">
                                         <input
                                             type="number"
                                             value={product.minStock}
                                             onChange={(e) => updateProductMinStock(product.id, e.target.value)}
-                                            style={{
-                                                width: '80px',
-                                                padding: '0.5rem',
-                                                border: '1px solid #d1d5db',
-                                                borderRadius: '0.375rem'
-                                            }}
+                                            className="w-20 p-2 bg-background border border-surface-light text-text-primary rounded-md focus:outline-none focus:border-brand/50 transition-colors"
                                         />
                                     </td>
-                                    <td style={{ padding: '1rem', textAlign: 'center' }}>
+                                    <td className="p-4 text-center">
                                         {isLowStock ? (
-                                            <span style={{
-                                                color: '#ef4444',
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                gap: '0.25rem',
-                                                fontWeight: 600,
-                                                backgroundColor: '#fee2e2',
-                                                padding: '0.25rem 0.75rem',
-                                                borderRadius: '9999px',
-                                                fontSize: '0.875rem'
-                                            }}>
-                                                <AlertTriangle size={16} /> Repor
+                                            <span className="inline-flex items-center gap-1.5 font-bold text-danger bg-danger/10 px-3 py-1 rounded-full text-xs uppercase tracking-wider border border-danger/20">
+                                                <AlertTriangle size={14} /> Repor
                                             </span>
                                         ) : (
-                                            <span style={{
-                                                color: '#10b981',
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                gap: '0.25rem',
-                                                fontWeight: 600,
-                                                backgroundColor: '#d1fae5',
-                                                padding: '0.25rem 0.75rem',
-                                                borderRadius: '9999px',
-                                                fontSize: '0.875rem'
-                                            }}>
-                                                <Check size={16} /> OK
+                                            <span className="inline-flex items-center gap-1.5 font-bold text-success bg-success/10 px-3 py-1 rounded-full text-xs uppercase tracking-wider border border-success/20">
+                                                <Check size={14} /> OK
                                             </span>
                                         )}
                                     </td>
@@ -95,7 +62,8 @@ export default function InventoryPage() {
                 </table>
             </div>
 
-            <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#eff6ff', borderRadius: '0.5rem', color: '#1e40af', fontSize: '0.875rem' }}>
+            <div className="mt-8 p-4 bg-brand/5 border border-brand/20 rounded-lg text-brand-light text-sm flex items-start gap-3">
+                <AlertTriangle size={20} className="shrink-0" />
                 <p><strong>Dica:</strong> O estoque é atualizado automaticamente quando um pedido é realizado (pelo site ou pelo PDV).</p>
             </div>
         </div>

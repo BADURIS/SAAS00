@@ -20,97 +20,83 @@ export default function CartDrawer() {
     if (!isCartOpen) return null;
 
     return (
-        <div style={{
-            position: 'fixed',
-            top: 0,
-            right: 0,
-            bottom: 0,
-            width: '100%',
-            maxWidth: '400px',
-            backgroundColor: 'white',
-            boxShadow: '-4px 0 10px rgba(0,0,0,0.1)',
-            zIndex: 1000,
-            display: 'flex',
-            flexDirection: 'column',
-            animation: 'slideIn 0.3s ease-out'
-        }}>
-            <div style={{
-                padding: '1.5rem',
-                borderBottom: '1px solid #eee',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                backgroundColor: 'var(--color-primary)',
-                color: 'white'
-            }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Seu Carrinho</h2>
-                <button onClick={() => setIsCartOpen(false)} style={{ color: 'white' }}>
+        <div className="fixed inset-y-0 right-0 w-full max-w-[400px] bg-background z-[1000] flex flex-col shadow-[-4px_0_20px_rgba(0,0,0,0.5)] animate-[slideIn_0.3s_ease-out] border-l border-surface-light">
+            <div className="p-6 border-b border-surface flex justify-between items-center bg-surface">
+                <h2 className="text-xl font-bold font-serif text-white">Seu Carrinho</h2>
+                <button 
+                  onClick={() => setIsCartOpen(false)} 
+                  className="text-text-muted hover:text-white transition-colors cursor-pointer"
+                >
                     <X size={24} />
                 </button>
             </div>
 
-            <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem' }}>
+            <div className="flex-1 overflow-y-auto p-6 bg-background">
                 {cartItems.length === 0 ? (
-                    <p style={{ textAlign: 'center', color: '#888', marginTop: '2rem' }}>
+                    <p className="text-center text-text-muted mt-8">
                         Seu carrinho está vazio.
                     </p>
                 ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        {cartItems.map(item => (
-                            <div key={item.id} style={{ display: 'flex', gap: '1rem', borderBottom: '1px solid #f5f5f5', paddingBottom: '1rem' }}>
-                                <img src={item.image} alt={item.name} style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }} />
-                                <div style={{ flex: 1 }}>
-                                    <h4 style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{item.name}</h4>
-                                    {item.observation && (
-                                        <p style={{ fontSize: '0.75rem', color: '#666', fontStyle: 'italic', marginBottom: '0.25rem' }}>
-                                            Obs: {item.observation}
+                    <div className="flex flex-col gap-4">
+                        {cartItems.map(item => {
+                            const currentStock = products.find(p => p.id === item.id)?.stock || 0;
+                            const isAtMax = item.quantity >= currentStock;
+
+                            return (
+                                <div key={item.id} className="flex gap-4 border-b border-surface pb-4 last:border-0">
+                                    <img src={item.image} alt={item.name} className="w-16 h-16 rounded-lg object-cover bg-surface-light" />
+                                    <div className="flex-1">
+                                        <h4 className="font-semibold text-text-primary mb-1">{item.name}</h4>
+                                        {item.observation && (
+                                            <p className="text-xs text-text-muted italic mb-1">
+                                                Obs: {item.observation}
+                                            </p>
+                                        )}
+                                        <p className="text-brand font-bold">
+                                            R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}
                                         </p>
-                                    )}
-                                    <p style={{ color: 'var(--color-primary)', fontWeight: 'bold' }}>
-                                        R$ {(item.price * item.quantity).toFixed(2).replace('.', ',')}
-                                    </p>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
-                                        <button onClick={() => updateQuantity(item.id, -1)} style={{ padding: '4px', background: '#eee', borderRadius: '4px' }}><Minus size={14} /></button>
-                                        <span>{item.quantity}</span>
-                                        <button
-                                            onClick={() => updateQuantity(item.id, 1)}
-                                            disabled={(() => {
-                                                const currentStock = products.find(p => p.id === item.id)?.stock || 0;
-                                                return item.quantity >= currentStock;
-                                            })()}
-                                            style={{
-                                                padding: '4px',
-                                                background: '#eee',
-                                                borderRadius: '4px',
-                                                opacity: (() => {
-                                                    const currentStock = products.find(p => p.id === item.id)?.stock || 0;
-                                                    return item.quantity >= currentStock ? 0.5 : 1;
-                                                })(),
-                                                cursor: (() => {
-                                                    const currentStock = products.find(p => p.id === item.id)?.stock || 0;
-                                                    return item.quantity >= currentStock ? 'not-allowed' : 'pointer';
-                                                })()
-                                            }}
-                                        >
-                                            <Plus size={14} />
-                                        </button>
-                                        <button onClick={() => removeFromCart(item.id)} style={{ marginLeft: 'auto', color: '#ef4444' }}><Trash2 size={16} /></button>
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <button 
+                                                onClick={() => updateQuantity(item.id, -1)} 
+                                                className="p-1 bg-surface-light text-text-primary hover:text-brand rounded transition-colors cursor-pointer"
+                                            >
+                                                <Minus size={14} />
+                                            </button>
+                                            <span className="text-text-primary text-sm min-w-[1.5rem] text-center font-medium">
+                                                {item.quantity}
+                                            </span>
+                                            <button
+                                                onClick={() => updateQuantity(item.id, 1)}
+                                                disabled={isAtMax}
+                                                className={`p-1 bg-surface-light text-text-primary rounded transition-colors ${
+                                                    isAtMax ? 'opacity-50 cursor-not-allowed' : 'hover:text-brand cursor-pointer'
+                                                }`}
+                                            >
+                                                <Plus size={14} />
+                                            </button>
+                                            <button 
+                                                onClick={() => removeFromCart(item.id)} 
+                                                className="ml-auto text-text-muted hover:text-danger transition-colors cursor-pointer"
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>
 
-            <div style={{ padding: '1.5rem', borderTop: '1px solid #eee', backgroundColor: '#f9fafb' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', fontWeight: 'bold', fontSize: '1.25rem' }}>
+            <div className="p-6 border-t border-surface bg-surface-dark">
+                <div className="flex justify-between mb-4 font-bold text-xl text-white">
                     <span>Total:</span>
-                    <span>R$ {cartTotal.toFixed(2).replace('.', ',')}</span>
+                    <span className="text-brand">R$ {cartTotal.toFixed(2).replace('.', ',')}</span>
                 </div>
                 <Button
                     variant="primary"
-                    style={{ width: '100%', justifyContent: 'center' }}
+                    className="w-full"
                     disabled={cartItems.length === 0}
                     onClick={() => {
                         setIsCartOpen(false);

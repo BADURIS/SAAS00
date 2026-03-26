@@ -40,94 +40,73 @@ export default function CouriersPage() {
     };
 
     return (
-        <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
-                <Bike size={32} color="#4b5563" />
-                <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#111827', margin: 0 }}>Gestão de Motoboys</h1>
+        <div className="text-text-primary">
+            <div className="flex items-center gap-4 mb-10">
+                <Bike size={32} className="text-brand" />
+                <h1 className="text-3xl font-serif font-bold text-white uppercase tracking-wide">Gestão de Motoboys</h1>
             </div>
 
             {/* Tabs */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid #e5e7eb' }}>
+            <div className="flex gap-4 mb-8 border-b border-surface-light">
                 <button
                     onClick={() => setActiveTab('couriers')}
-                    style={{
-                        padding: '0.75rem 1.5rem',
-                        fontWeight: 600,
-                        borderBottom: activeTab === 'couriers' ? '2px solid #3b82f6' : '2px solid transparent',
-                        color: activeTab === 'couriers' ? '#3b82f6' : '#6b7280',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer'
-                    }}
+                    className={`pb-4 px-2 font-bold text-sm tracking-widest uppercase transition-colors border-b-2
+                        ${activeTab === 'couriers' ? 'border-brand text-brand' : 'border-transparent text-text-muted hover:text-white'}
+                    `}
                 >
                     Motoboys
                 </button>
                 <button
                     onClick={() => setActiveTab('fees')}
-                    style={{
-                        padding: '0.75rem 1.5rem',
-                        fontWeight: 600,
-                        borderBottom: activeTab === 'fees' ? '2px solid #3b82f6' : '2px solid transparent',
-                        color: activeTab === 'fees' ? '#3b82f6' : '#6b7280',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer'
-                    }}
+                    className={`pb-4 px-2 font-bold text-sm tracking-widest uppercase transition-colors border-b-2
+                        ${activeTab === 'fees' ? 'border-brand text-brand' : 'border-transparent text-text-muted hover:text-white'}
+                    `}
                 >
                     Taxas de Entrega
                 </button>
                 <button
                     onClick={() => setActiveTab('report')}
-                    style={{
-                        padding: '0.75rem 1.5rem',
-                        fontWeight: 600,
-                        borderBottom: activeTab === 'report' ? '2px solid #3b82f6' : '2px solid transparent',
-                        color: activeTab === 'report' ? '#3b82f6' : '#6b7280',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer'
-                    }}
+                    className={`pb-4 px-2 font-bold text-sm tracking-widest uppercase transition-colors border-b-2
+                        ${activeTab === 'report' ? 'border-brand text-brand' : 'border-transparent text-text-muted hover:text-white'}
+                    `}
                 >
                     Relatório
                 </button>
             </div>
 
             {/* Content */}
-            <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div className="bg-surface p-8 rounded-xl border border-surface-light">
 
                 {/* 1. Motoboys Tab */}
                 {activeTab === 'couriers' && (
                     <div>
-                        <form onSubmit={handleAddCourier} style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+                        <form onSubmit={handleAddCourier} className="flex gap-4 mb-8">
                             <input
                                 type="text"
                                 placeholder="Nome do Motoboy"
                                 value={newCourierName}
                                 onChange={(e) => setNewCourierName(e.target.value)}
-                                style={{ flex: 1, padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db' }}
+                                className="flex-1 p-3 bg-background border border-surface-light rounded-lg text-white focus:outline-none focus:border-brand/50 transition-colors"
                                 required
                             />
-                            <Button variant="primary" type="submit">
-                                <Plus size={20} style={{ marginRight: '0.5rem' }} /> Adicionar
+                            <Button variant="primary" type="submit" className="flex items-center gap-2">
+                                <Plus size={20} /> Adicionar
                             </Button>
                         </form>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {couriers.map(courier => (
-                                <div key={courier.id} style={{
-                                    padding: '1rem', border: '1px solid #e5e7eb', borderRadius: '0.5rem',
-                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f9fafb'
-                                }}>
-                                    <span style={{ fontWeight: 600 }}>{courier.name}</span>
+                                <div key={courier.id} className="p-4 bg-[#1A1A1A] border border-surface-light rounded-lg flex justify-between items-center group transition-colors hover:border-brand/30">
+                                    <span className="font-semibold text-white">{courier.name}</span>
                                     <button
                                         onClick={() => removeCourier(courier.id)}
-                                        style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
+                                        className="text-text-muted hover:text-danger transition-colors"
                                     >
                                         <Trash2 size={18} />
                                     </button>
                                 </div>
                             ))}
-                            {couriers.length === 0 && <p style={{ color: '#9ca3af', fontStyle: 'italic' }}>Nenhum motoboy cadastrado.</p>}
+                            {couriers.length === 0 && <p className="col-span-full text-text-muted italic">Nenhum motoboy cadastrado.</p>}
                         </div>
                     </div>
                 )}
@@ -135,44 +114,41 @@ export default function CouriersPage() {
                 {/* 2. Fees Tab */}
                 {activeTab === 'fees' && (
                     <div>
-                        <form onSubmit={handleAddFee} style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                        <form onSubmit={handleAddFee} className="flex flex-wrap gap-4 mb-8">
                             <input
                                 type="text"
                                 placeholder="Local / Bairro"
                                 value={newFeeName}
                                 onChange={(e) => setNewFeeName(e.target.value)}
-                                style={{ flex: 2, padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db' }}
+                                className="flex-[2] min-w-[200px] p-3 bg-background border border-surface-light rounded-lg text-white focus:outline-none focus:border-brand/50 transition-colors"
                                 required
                             />
-                            <div style={{ position: 'relative', flex: 1 }}>
-                                <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280' }}>R$</span>
+                            <div className="relative flex-1 min-w-[150px]">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted font-bold">R$</span>
                                 <input
                                     type="number"
                                     placeholder="Valor"
                                     value={newFeePrice}
                                     onChange={(e) => setNewFeePrice(e.target.value)}
                                     step="0.50"
-                                    style={{ width: '100%', padding: '0.75rem 0.75rem 0.75rem 2.5rem', borderRadius: '0.5rem', border: '1px solid #d1d5db' }}
+                                    className="w-full py-3 pr-3 pl-10 bg-background border border-surface-light rounded-lg text-white focus:outline-none focus:border-brand/50 transition-colors"
                                     required
                                 />
                             </div>
-                            <Button variant="primary" type="submit">
-                                <Plus size={20} style={{ marginRight: '0.5rem' }} /> Adicionar Taxa
+                            <Button variant="primary" type="submit" className="flex items-center gap-2">
+                                <Plus size={20} /> Adicionar Taxa
                             </Button>
                         </form>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        <div className="flex flex-col gap-3">
                             {deliveryFees.map(fee => (
-                                <div key={fee.id} style={{
-                                    padding: '1rem', border: '1px solid #e5e7eb', borderRadius: '0.5rem',
-                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#f9fafb'
-                                }}>
-                                    <span style={{ fontWeight: 600 }}>{fee.name}</span>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                        <span style={{ color: '#059669', fontWeight: 'bold' }}>R$ {fee.price.toFixed(2)}</span>
+                                <div key={fee.id} className="p-4 bg-[#1A1A1A] border border-surface-light rounded-lg flex justify-between items-center group transition-colors hover:border-brand/30">
+                                    <span className="font-semibold text-white">{fee.name}</span>
+                                    <div className="flex items-center gap-6">
+                                        <span className="text-brand font-bold text-lg">R$ {fee.price.toFixed(2)}</span>
                                         <button
                                             onClick={() => removeDeliveryFee(fee.id)}
-                                            style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
+                                            className="text-text-muted hover:text-danger transition-colors"
                                         >
                                             <Trash2 size={18} />
                                         </button>
@@ -185,46 +161,46 @@ export default function CouriersPage() {
 
                 {/* 3. Report Tab */}
                 {activeTab === 'report' && (
-                    <div>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
-                                    <th style={{ textAlign: 'left', padding: '1rem', color: '#374151', width: '30%' }}>Motoboy</th>
-                                    <th style={{ textAlign: 'left', padding: '1rem', color: '#374151' }}>Locais de Entrega</th>
-                                    <th style={{ textAlign: 'center', padding: '1rem', color: '#374151' }}>Entregas</th>
-                                    <th style={{ textAlign: 'right', padding: '1rem', color: '#374151' }}>Total Ganho</th>
+                                <tr className="border-b border-surface">
+                                    <th className="pb-4 text-[10px] uppercase tracking-widest text-text-muted font-bold w-1/4">Motoboy</th>
+                                    <th className="pb-4 text-[10px] uppercase tracking-widest text-text-muted font-bold">Locais de Entrega</th>
+                                    <th className="pb-4 text-[10px] uppercase tracking-widest text-text-muted font-bold text-center">Entregas</th>
+                                    <th className="pb-4 text-[10px] uppercase tracking-widest text-text-muted font-bold text-right">Total Ganho</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {getReportData().map(data => (
-                                    <tr key={data.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                                        <td style={{ padding: '1rem' }}>{data.name}</td>
-                                        <td style={{ padding: '1rem' }}>
+                                    <tr key={data.id} className="border-b border-surface-light/50 hover:bg-surface-light/20 transition-colors">
+                                        <td className="py-4 font-serif text-white">{data.name}</td>
+                                        <td className="py-4">
                                             {data.zones.length > 0 ? (
-                                                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                                                <div className="flex flex-wrap gap-2">
                                                     {data.zones.map((zone, idx) => (
-                                                        <span key={idx} style={{ backgroundColor: '#f3f4f6', color: '#4b5563', padding: '0.2rem 0.6rem', borderRadius: '0.25rem', fontSize: '0.8rem' }}>
+                                                        <span key={idx} className="bg-background text-text-secondary px-2.5 py-1 rounded text-[10px] uppercase font-bold tracking-wider border border-surface-light">
                                                             {zone}
                                                         </span>
                                                     ))}
                                                 </div>
                                             ) : (
-                                                <span style={{ color: '#9ca3af', fontStyle: 'italic', fontSize: '0.9rem' }}>-</span>
+                                                <span className="text-text-muted italic text-sm">-</span>
                                             )}
                                         </td>
-                                        <td style={{ padding: '1rem', textAlign: 'center' }}>
-                                            <span style={{ backgroundColor: '#e0e7ff', color: '#3730a3', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem' }}>
+                                        <td className="py-4 text-center">
+                                            <span className="bg-brand/10 text-brand px-3 py-1 rounded-full text-xs font-bold border border-brand/20">
                                                 {data.totalDeliveries}
                                             </span>
                                         </td>
-                                        <td style={{ padding: '1rem', textAlign: 'right', fontWeight: 'bold', color: '#059669' }}>
+                                        <td className="py-4 text-right font-bold text-brand-light">
                                             R$ {data.totalEarnings.toFixed(2)}
                                         </td>
                                     </tr>
                                 ))}
                                 {couriers.length === 0 && (
                                     <tr>
-                                        <td colSpan="4" style={{ padding: '2rem', textAlign: 'center', color: '#9ca3af' }}>Nenhum dado disponível.</td>
+                                        <td colSpan="4" className="py-8 text-center text-text-muted italic">Nenhum dado disponível.</td>
                                     </tr>
                                 )}
                             </tbody>

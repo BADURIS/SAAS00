@@ -20,70 +20,43 @@ export default function ProductCard({ product, onAdd }) {
 
     return (
         <motion.div
-            whileHover={{ y: -5, boxShadow: '0 10px 25px -5px rgba(255, 77, 0, 0.3)' }}
+            whileHover={{ y: -5 }}
             transition={{ duration: 0.2 }}
-            style={{
-                backgroundColor: 'rgba(28, 28, 25, 0.95)', // Dark background
-                borderRadius: '1rem',
-                overflow: 'hidden',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.5)',
-                display: 'flex',
-                flexDirection: 'column',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(5px)'
-            }}
+            className="bg-surface rounded-2xl overflow-hidden shadow-lg border border-surface-light flex flex-col group hover:shadow-2xl hover:shadow-brand/20 transition-all duration-300"
         >
-            <div style={{ height: '200px', overflow: 'hidden', position: 'relative' }}>
+            <div className="h-48 overflow-hidden relative">
                 <img
                     src={product.image}
                     alt={product.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 {product.stock <= 0 && (
-                    <div style={{
-                        position: 'absolute',
-                        top: 0, left: 0, right: 0, bottom: 0,
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        display: 'flex', justifyContent: 'center', alignItems: 'center',
-                        color: 'white', fontWeight: 'bold', fontSize: '1.2rem'
-                    }}>
-                        ESGOTADO
+                    <div className="absolute inset-0 bg-black/80 flex justify-center items-center text-white font-bold text-xl uppercase tracking-widest backdrop-blur-sm">
+                        Esgotado
                     </div>
                 )}
             </div>
-            <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#F3F4F6' }}>{product.name}</h3>
-                    <span style={{
-                        color: '#FF4D00', // Fire Orange/Red
-                        fontWeight: 'bold',
-                        fontSize: '1.25rem',
-                        textShadow: '0 0 10px rgba(255, 77, 0, 0.3)'
-                    }}>
+            
+            <div className="p-6 flex-1 flex flex-col bg-surface/50 backdrop-blur-sm">
+                <div className="flex justify-between items-start gap-4 mb-2">
+                    <h3 className="text-xl font-bold text-text-primary leading-tight">{product.name}</h3>
+                    <span className="text-brand font-bold text-xl whitespace-nowrap">
                         R$ {product.price.toFixed(2).replace('.', ',')}
                     </span>
                 </div>
-                <p style={{ color: '#9CA3AF', marginBottom: '1rem', flex: 1, fontSize: '0.95rem' }}>
+                
+                <p className="text-text-muted text-sm mb-4 flex-1">
                     {product.description}
                 </p>
 
                 {/* Observation Field */}
-                <div style={{ marginBottom: '1rem' }}>
+                <div className="mb-4">
                     <textarea
                         value={observation}
                         onChange={(e) => setObservation(e.target.value)}
                         placeholder="Observação (ex: Ao ponto, sem cebola...)"
-                        style={{
-                            width: '100%',
-                            padding: '0.5rem',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            borderRadius: '0.375rem',
-                            fontSize: '0.875rem',
-                            resize: 'none',
-                            minHeight: '60px',
-                            backgroundColor: 'rgba(0, 0, 0, 0.3)', // Semi-transparent black
-                            color: '#F3F4F6',
-                        }}
+                        maxLength={100}
+                        className="w-full p-3 bg-background border border-surface-light rounded-lg text-sm resize-none min-h-[60px] text-text-primary placeholder:text-text-muted/50 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand transition-colors"
                     />
                 </div>
 
@@ -91,19 +64,9 @@ export default function ProductCard({ product, onAdd }) {
                     variant="primary"
                     onClick={handleAdd}
                     disabled={product.stock <= 0 || isMaxReached}
-                    style={{
-                        width: '100%',
-                        justifyContent: 'center',
-                        opacity: (product.stock > 0 && !isMaxReached) ? 1 : 0.5,
-                        cursor: (product.stock > 0 && !isMaxReached) ? 'pointer' : 'not-allowed',
-                        backgroundColor: isMaxReached ? '#4B5563' : '#FF4D00',
-                        borderColor: isMaxReached ? '#4B5563' : '#FF4D00',
-                        boxShadow: (product.stock > 0 && !isMaxReached) ? '0 4px 15px rgba(255, 77, 0, 0.3)' : 'none',
-                        color: 'white',
-                        fontWeight: '600'
-                    }}
+                    className="w-full"
                 >
-                    {product.stock <= 0 ? 'VOLTO LOGO' : (isMaxReached ? 'Máx. Atingido' : 'Adicionar ao Pedido')}
+                    {product.stock <= 0 ? 'Volto Logo' : (isMaxReached ? 'Máx. Atingido' : 'Adicionar ao Pedido')}
                 </Button>
             </div>
         </motion.div>

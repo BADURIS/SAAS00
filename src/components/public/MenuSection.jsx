@@ -61,52 +61,24 @@ export default function MenuSection() {
     }, []);
 
     return (
-        <section style={{ backgroundColor: 'transparent', minHeight: '100vh', paddingBottom: '4rem' }}>
-            <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <section className="bg-transparent min-h-screen pb-16">
+            <div className="container max-w-7xl mx-auto">
 
-                <h2 style={{
-                    textAlign: 'center',
-                    fontSize: '2.5rem',
-                    padding: '3rem 1rem 1rem',
-                    color: '#F3F4F6', // White text for visibility
-                    textShadow: '0 2px 4px rgba(0,0,0,0.5)'
-                }}>
+                <h2 className="text-center text-4xl md:text-5xl font-serif font-bold pt-12 pb-4 text-white drop-shadow-md">
                     Nosso Cardápio
                 </h2>
 
                 {/* Sticky Category Navigation */}
-                <div style={{
-                    position: 'sticky',
-                    top: '0',
-                    zIndex: 100,
-                    backgroundColor: 'rgba(15, 15, 11, 0.85)',
-                    backdropFilter: 'blur(12px)',
-                    padding: '1rem 0',
-                    borderBottom: '1px solid rgba(255,255,255,0.05)',
-                    marginBottom: '2rem',
-                    overflowX: 'auto',
-                    whiteSpace: 'nowrap',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '1rem',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.2)'
-                }}>
+                <div className="sticky top-0 z-[100] bg-surface/85 backdrop-blur-md py-4 border-b border-surface-light mb-8 overflow-x-auto whitespace-nowrap flex justify-start md:justify-center gap-4 px-4 shadow-md no-scrollbar">
                     {CATEGORIES.map(category => (
                         <button
                             key={category.id}
                             onClick={() => scrollToCategory(category.id)}
-                            style={{
-                                padding: '0.6rem 1.5rem',
-                                borderRadius: '9999px',
-                                border: activeCategory === category.id ? 'none' : '1px solid rgba(255,255,255,0.1)',
-                                cursor: 'pointer',
-                                fontSize: '1rem',
-                                fontWeight: activeCategory === category.id ? '600' : '400',
-                                backgroundColor: activeCategory === category.id ? 'var(--color-primary)' : 'rgba(255,255,255,0.03)',
-                                color: activeCategory === category.id ? 'white' : 'var(--color-text-muted)',
-                                transition: 'all 0.3s ease',
-                                letterSpacing: '0.02em'
-                            }}
+                            className={`px-6 py-2.5 rounded-full text-base tracking-wide transition-all duration-300 cursor-pointer flex-shrink-0 ${
+                                activeCategory === category.id
+                                    ? 'bg-brand text-background font-bold shadow-[0_4px_10px_-2px_rgba(230,138,92,0.4)] border-none'
+                                    : 'bg-white/5 text-text-muted font-normal border border-white/10 hover:bg-white/10 hover:text-text-primary'
+                            }`}
                         >
                             {category.label}
                         </button>
@@ -114,34 +86,23 @@ export default function MenuSection() {
                 </div>
 
                 {/* Product Sections */}
-                <div style={{ padding: '0 1rem 4rem' }}>
+                <div className="px-4 pb-16">
                     {CATEGORIES.map((category) => {
                         const categoryProducts = groupedProducts[category.id];
                         if (!categoryProducts || categoryProducts.length === 0) return null;
 
                         return (
-                            <div key={category.id} id={`category-${category.id}`} style={{ marginBottom: '4rem', scrollMarginTop: '100px' }}>
+                            <div key={category.id} id={`category-${category.id}`} className="mb-16 scroll-mt-[100px]">
                                 <motion.h3
                                     initial={{ opacity: 0, x: -20 }}
                                     whileInView={{ opacity: 1, x: 0 }}
                                     viewport={{ once: true }}
-                                    style={{
-                                        fontSize: '1.8rem',
-                                        color: '#FF4D00', // Red/Orange for Category
-                                        marginBottom: '1.5rem',
-                                        borderLeft: '4px solid #FF4D00',
-                                        paddingLeft: '1rem',
-                                        textShadow: '0 2px 4px rgba(0,0,0,0.5)'
-                                    }}
+                                    className="text-3xl font-serif text-brand mb-6 border-l-4 border-brand pl-4 drop-shadow-sm"
                                 >
                                     {category.label}
                                 </motion.h3>
 
-                                <div style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                                    gap: '2rem'
-                                }}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                     {categoryProducts.map((product, index) => (
                                         <motion.div
                                             key={product.id}

@@ -1,111 +1,117 @@
 import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ShoppingCart, Package, Settings, LogOut, ClipboardList, PlusCircle, Bike } from 'lucide-react';
-import logo from '../assets/logo.png';
+import { LayoutDashboard, ShoppingCart, Package, Settings, LogOut, ClipboardList, PlusCircle, Bike, Flame, HelpCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
 
 export default function AdminLayout() {
-    const { orders } = useStore();
-    const location = useLocation();
-    const navigate = useNavigate();
-    const { logout } = useAuth();
-    const isActive = (path) => location.pathname === path;
+  const { orders } = useStore();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+  const isActive = (path) => location.pathname === path || (path !== '/admin' && location.pathname.startsWith(path));
 
-    const pendingCount = orders.filter(o => !['Entregue', 'Pedido retirado', 'Cancelado', 'Finalizado'].includes(o.status)).length;
+  const pendingCount = orders.filter(o => !['Entregue', 'Pedido retirado', 'Cancelado', 'Finalizado'].includes(o.status)).length;
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
-    };
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
-    const navItems = [
-        { icon: <PlusCircle size={20} />, label: 'Novo Pedido', path: '/admin/pos' },
-        { icon: <LayoutDashboard size={20} />, label: 'Dashboard', path: '/admin' },
-        { icon: <ShoppingCart size={20} />, label: 'Pedidos', path: '/admin/orders' },
-        { icon: <Package size={20} />, label: 'Produtos', path: '/admin/products' },
-        { icon: <ClipboardList size={20} />, label: 'Estoque', path: '/admin/inventory' },
-        { icon: <Bike size={20} />, label: 'Motoboys', path: '/admin/couriers' },
-        { icon: <Settings size={20} />, label: 'Configurações', path: '/admin/settings' },
-    ];
+  const navItems = [
+    { icon: <LayoutDashboard size={18} strokeWidth={2} />, label: 'Dashboard', path: '/admin' },
+    { icon: <PlusCircle size={18} strokeWidth={2} />, label: 'POS Terminal', path: '/admin/pos' },
+    { icon: <ClipboardList size={18} strokeWidth={2} />, label: 'Inventory', path: '/admin/inventory' },
+    { icon: <ShoppingCart size={18} strokeWidth={2} />, label: 'Orders', path: '/admin/orders' },
+    { icon: <Package size={18} strokeWidth={2} />, label: 'Products', path: '/admin/products' },
+    { icon: <Bike size={18} strokeWidth={2} />, label: 'Couriers', path: '/admin/couriers' },
+    { icon: <Settings size={18} strokeWidth={2} />, label: 'Settings', path: '/admin/settings' },
+  ];
 
-    return (
-        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
-            {/* Sidebar */}
-            <aside style={{
-                width: '260px',
-                backgroundColor: '#1f2937',
-                color: 'white',
-                display: 'flex',
-                flexDirection: 'column'
-            }}>
-                <div style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <img src={logo} alt="Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
-                    <div>
-                        <h1 style={{ fontSize: '1.25rem', fontWeight: 'bold', lineHeight: '1' }}>Admin</h1>
-                        <span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>Casa dos Assados</span>
-                    </div>
-                </div>
-
-                <nav style={{ flex: 1, padding: '1rem' }}>
-                    <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        {navItems.map((item) => (
-                            <li key={item.path}>
-                                <Link to={item.path} style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.75rem',
-                                    padding: '0.75rem 1rem',
-                                    borderRadius: '0.5rem',
-                                    transition: 'background-color 0.2s',
-                                    backgroundColor: isActive(item.path) ? 'var(--color-primary)' : 'transparent',
-                                    color: isActive(item.path) ? 'white' : '#d1d5db',
-                                    textDecoration: 'none',
-                                    position: 'relative'
-                                }}>
-                                    {item.icon}
-                                    <span style={{ fontWeight: 500 }}>{item.label}</span>
-                                    {item.label === 'Pedidos' && pendingCount > 0 && (
-                                        <span style={{
-                                            backgroundColor: '#ef4444',
-                                            color: 'white',
-                                            fontSize: '0.75rem',
-                                            fontWeight: 'bold',
-                                            padding: '0.1rem 0.4rem',
-                                            borderRadius: '9999px',
-                                            marginLeft: 'auto'
-                                        }}>
-                                            {pendingCount}
-                                        </span>
-                                    )}
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
-
-                <div style={{ padding: '1rem', borderTop: '1px solid #374151' }}>
-                    <button
-                        onClick={handleLogout}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.75rem',
-                            width: '100%',
-                            padding: '0.75rem 1rem',
-                            color: '#ef4444',
-                            cursor: 'pointer'
-                        }}>
-                        <LogOut size={20} />
-                        <span>Sair</span>
-                    </button>
-                </div>
-            </aside>
-
-            {/* Main Content */}
-            <main style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
-                <Outlet />
-            </main>
+  return (
+    <div className="flex min-h-screen bg-background text-text-primary font-sans">
+      {/* Sidebar */}
+      <aside className="w-[260px] bg-[#111111] border-r border-surface-light flex flex-col shrink-0 relative z-20 shadow-xl">
+        
+        {/* Logo Area */}
+        <div className="p-8 flex flex-col gap-1 mb-4">
+          <div className="flex items-center gap-3">
+            <Flame className="text-brand" size={24} strokeWidth={2.5} />
+            <h1 className="text-brand-light font-serif tracking-widest text-lg font-bold uppercase leading-none">
+              CASA DE
+              <br />
+              <span className="text-white">CARNES</span>
+            </h1>
+          </div>
+          <span className="text-text-muted text-[10px] uppercase tracking-[0.2em] font-semibold mt-2 ml-[36px]">
+            Management Portal
+          </span>
         </div>
-    );
+
+        {/* Navigation */}
+        <nav className="flex-1 py-4">
+          <ul className="flex flex-col gap-2">
+            {navItems.map((item) => {
+              const active = isActive(item.path);
+              return (
+                <li key={item.path} className="px-4">
+                  <Link
+                    to={item.path}
+                    className={`
+                      group flex items-center justify-between px-4 py-3 rounded-lg transition-all duration-200
+                      ${active 
+                        ? 'bg-surface border-l-2 border-brand text-brand shadow-sm' 
+                        : 'text-text-secondary hover:bg-surface/50 hover:text-text-primary border-l-2 border-transparent'
+                      }
+                    `}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className={`transition-colors ${active ? 'text-brand' : 'text-text-muted group-hover:text-text-primary'}`}>
+                        {item.icon}
+                      </span>
+                      <span className="font-medium text-sm tracking-wide">
+                        {item.label}
+                      </span>
+                    </div>
+
+                    {item.label === 'Orders' && pendingCount > 0 && (
+                      <span className={`
+                        text-[10px] font-bold px-2 py-0.5 rounded-full
+                        ${active ? 'bg-brand text-background' : 'bg-surface-light text-text-primary group-hover:bg-brand/20 group-hover:text-brand'}
+                      `}>
+                        {pendingCount}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        {/* Bottom Actions */}
+        <div className="p-6 mt-auto">
+          <button className="flex items-center gap-4 w-full px-4 py-3 text-sm font-medium tracking-wide text-text-secondary hover:text-text-primary hover:bg-surface/50 rounded-lg transition-all mb-2">
+            <HelpCircle size={18} className="text-text-muted" strokeWidth={2} />
+            Support
+          </button>
+          
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-4 w-full px-4 py-3 text-sm font-medium tracking-wide text-text-secondary hover:text-danger hover:bg-danger/10 rounded-lg transition-all"
+          >
+            <LogOut size={18} className="text-text-muted" strokeWidth={2} />
+            Logout
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col overflow-hidden bg-background">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+          <Outlet />
+        </div>
+      </main>
+    </div>
+  );
 }
