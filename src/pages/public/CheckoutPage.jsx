@@ -12,7 +12,12 @@ export default function CheckoutPage() {
     const navigate = useNavigate();
 
     // Default form values from localStorage to simulate an "account"
-    const savedCustomerData = JSON.parse(localStorage.getItem('saas_customer_data') || '{}');
+    let savedCustomerData = {};
+    try {
+        savedCustomerData = JSON.parse(localStorage.getItem('saas_customer_data') || '{}');
+    } catch (e) {
+        console.error("Error parsing saas_customer_data", e);
+    }
 
     const { register, handleSubmit, watch, formState: { errors }, setValue } = useForm({
         defaultValues: savedCustomerData

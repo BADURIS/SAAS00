@@ -202,8 +202,12 @@ export function StoreProvider({ children }) {
 
     // Settings (Local Storage for now)
     const [settings, setSettings] = useState(() => {
-        const saved = localStorage.getItem('store_settings');
-        if (saved) return JSON.parse(saved);
+        try {
+            const saved = localStorage.getItem('store_settings');
+            if (saved) return JSON.parse(saved);
+        } catch (e) {
+            console.error("Error parsing store_settings", e);
+        }
         return {
             description: "O verdadeiro sabor do churrasco na sua mesa. Carnes selecionadas e preparadas com excelência para você e sua família.",
             contact: {
@@ -252,8 +256,12 @@ export function StoreProvider({ children }) {
 
     // Daily Menus (Local Storage)
     const [dailyMenus, setDailyMenus] = useState(() => {
-        const saved = localStorage.getItem('store_daily_menus');
-        if (saved) return JSON.parse(saved);
+        try {
+            const saved = localStorage.getItem('store_daily_menus');
+            if (saved) return JSON.parse(saved);
+        } catch (e) {
+            console.error("Error parsing store_daily_menus", e);
+        }
         return {
             2: {
                 name: "TERÇA-FEIRA",

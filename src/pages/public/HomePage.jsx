@@ -66,7 +66,7 @@ export default function HomePage() {
     }, []);
 
     const scrollToMenu = () => {
-        document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('daily-menu')?.scrollIntoView({ behavior: 'smooth' });
     };
 
     const scrollToSection = (e, id) => {
